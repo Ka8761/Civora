@@ -7,7 +7,6 @@ import ScrollReveal from '../ui/ScrollReveal';
 import groundnut from '../../styles/assets/Groundnut.jpg';
 import maize from '../../styles/assets/Maize.jpg';
 import soybean from '../../styles/assets/Soybean.jpg';
-import { Montserrat } from 'next/font/google';
 
 export default function About() {
   const [expanded, setExpanded] = useState(false);
