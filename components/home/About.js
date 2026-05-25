@@ -5,7 +5,7 @@ import Image from 'next/image';
 import ScrollReveal from '../ui/ScrollReveal';
 
 import groundnut from '../../styles/assets/Groundnut.jpg';
-import maize from '../../styles/assets/Maize.jpg';
+import maizee from '../../styles/assets/Maize.jpg';
 import soybean from '../../styles/assets/Soybean.jpg';
 
 export default function About() {
@@ -14,7 +14,7 @@ export default function About() {
   const crops = [
     {
       name: 'MAIZE',
-      image: maize,
+      image: maizee,
       desc: 'High-demand staple crop with strong market value and stable seasonal returns.',
       roi: '20–28%',
     },
