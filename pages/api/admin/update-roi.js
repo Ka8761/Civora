@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     await Notification.create({
       userId: investment.userId,
       title: '🌾 Harvest Complete! Your Returns Are Ready',
-      message: `Your ${investment.crop} farm investment has been harvested! ₦${investment.actualReturn?.toLocaleString()} will be transferred to your bank account within 14 business days.`,
+      message: `Your ${investment.crop} farm investment has been harvested! ₦${investment.actualReturn?.toLocaleString()} will be transferred to your bank account within 365 days.`,
       type: 'harvest',
       link: '/dashboard/investments',
     });
