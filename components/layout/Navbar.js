@@ -32,9 +32,7 @@ export default function Navbar() {
     <header
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       style={{
-        background: scrolled
-          ? 'rgba(0,0,0,0.96)'
-          : 'rgba(10,40,20,0.96)',
+        background: scrolled ? 'rgba(0,0,0,0.96)' : 'rgba(10,40,20,0.96)',
         backdropFilter: 'blur(12px)',
         borderBottom: scrolled
           ? '1px solid rgba(255,255,255,0.06)'
@@ -72,7 +70,6 @@ export default function Navbar() {
             height: 78,
           }}
         >
-          {/* LOGO */}
           <Link
             href="/"
             style={{
@@ -112,7 +109,6 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* DESKTOP NAV */}
           <nav
             className="hidden-mobile"
             style={{
@@ -129,10 +125,7 @@ export default function Navbar() {
                   fontSize: 14,
                   fontWeight: 700,
                   letterSpacing: 1,
-                  color:
-                    router.pathname === link.href
-                      ? '#49b34c'
-                      : '#ffffff',
+                  color: router.pathname === link.href ? '#49b34c' : '#ffffff',
                   textDecoration: 'none',
                   transition: '0.2s ease',
                   textTransform: 'uppercase',
@@ -143,7 +136,6 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* RIGHT SIDE */}
           <div
             style={{
               display: 'flex',
@@ -151,7 +143,6 @@ export default function Navbar() {
               gap: 16,
             }}
           >
-            {/* BADGE */}
             <div
               className="nav-badge"
               style={{
@@ -172,6 +163,7 @@ export default function Navbar() {
 
             {session ? (
               <div
+                className="hidden-mobile"
                 style={{
                   position: 'relative',
                 }}
@@ -242,18 +234,9 @@ export default function Navbar() {
                 <AnimatePresence>
                   {profileOpen && (
                     <motion.div
-                      initial={{
-                        opacity: 0,
-                        y: -8,
-                      }}
-                      animate={{
-                        opacity: 1,
-                        y: 0,
-                      }}
-                      exit={{
-                        opacity: 0,
-                        y: -8,
-                      }}
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
                       style={{
                         position: 'absolute',
                         top: '100%',
@@ -264,15 +247,11 @@ export default function Navbar() {
                         padding: 10,
                         minWidth: 220,
                         zIndex: 100,
-                        boxShadow:
-                          '0 10px 30px rgba(0,0,0,0.3)',
+                        boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
                       }}
                     >
                       {[
-                        {
-                          href: '/dashboard',
-                          label: 'Dashboard',
-                        },
+                        { href: '/dashboard', label: 'Dashboard' },
                         {
                           href: '/dashboard/investments',
                           label: 'My Investments',
@@ -281,14 +260,8 @@ export default function Navbar() {
                           href: '/dashboard/notifications',
                           label: 'Notifications',
                         },
-                        {
-                          href: '/dashboard/profile',
-                          label: 'Profile',
-                        },
-                        {
-                          href: '/dashboard/settings',
-                          label: 'Settings',
-                        },
+                        { href: '/dashboard/profile', label: 'Profile' },
+                        { href: '/dashboard/settings', label: 'Settings' },
                         ...(session.user.role === 'admin'
                           ? [
                               {
@@ -301,9 +274,7 @@ export default function Navbar() {
                         <Link
                           key={item.href}
                           href={item.href}
-                          onClick={() =>
-                            setProfileOpen(false)
-                          }
+                          onClick={() => setProfileOpen(false)}
                           style={{
                             display: 'block',
                             padding: '12px 16px',
@@ -320,8 +291,7 @@ export default function Navbar() {
 
                       <div
                         style={{
-                          borderTop:
-                            '1px solid rgba(255,255,255,0.06)',
+                          borderTop: '1px solid rgba(255,255,255,0.06)',
                           margin: '8px 0',
                         }}
                       />
@@ -391,7 +361,61 @@ export default function Navbar() {
               </div>
             )}
 
-            {/* MOBILE MENU BUTTON */}
+            {session && (
+              <div
+                className="show-mobile"
+                style={{
+                  display: 'none',
+                  alignItems: 'center',
+                  gap: 8,
+                }}
+              >
+                {session.user.image ? (
+                  <img
+                    src={session.user.image}
+                    alt={session.user.name || 'User'}
+                    style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: '50%',
+                      objectFit: 'cover',
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: '50%',
+                      background: '#49b34c',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#000',
+                      fontWeight: 800,
+                      fontSize: 12,
+                    }}
+                  >
+                    {session.user.name?.charAt(0).toUpperCase()}
+                  </div>
+                )}
+
+                <span
+                  style={{
+                    color: '#fff',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    maxWidth: 90,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  {session.user.name?.split(' ')[0]}
+                </span>
+              </div>
+            )}
+
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               style={{
@@ -417,25 +441,16 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* MOBILE MENU */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{
-              height: 0,
-              opacity: 0,
-            }}
-            animate={{
-              height: 'auto',
-              opacity: 1,
-            }}
-            exit={{
-              height: 0,
-              opacity: 0,
-            }}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
             style={{
               background: '#000',
               overflow: 'hidden',
+              maxHeight: '80vh',
             }}
           >
             <div
@@ -443,9 +458,104 @@ export default function Navbar() {
                 padding: '20px 24px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 6,
+                gap: 14,
+                maxHeight: '80vh',
               }}
             >
+              {session ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    padding: '12px 0 18px',
+                    borderBottom: '1px solid rgba(255,255,255,0.08)',
+                  }}
+                >
+                  {session.user.image ? (
+                    <img
+                      src={session.user.image}
+                      alt={session.user.name || 'User'}
+                      style={{
+                        width: 42,
+                        height: 42,
+                        borderRadius: '50%',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: 42,
+                        height: 42,
+                        borderRadius: '50%',
+                        background: '#49b34c',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 800,
+                        color: '#000',
+                      }}
+                    >
+                      {session.user.name?.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+
+                  <div>
+                    <div
+                      style={{ color: '#fff', fontWeight: 500, fontSize: 12 }}
+                    >
+                      {session.user.name}
+                    </div>
+                    <div
+                      style={{
+                        color: 'rgba(255,255,255,0.6)',
+                        fontSize: 12,
+                      }}
+                    >
+                      {session.user.email}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 18,
+                    padding: '12px 0 18px',
+                    borderBottom: '1px solid rgba(255,255,255,0.08)',
+                  }}
+                >
+                  <Link
+                    href="/auth/login"
+                    onClick={() => setMobileOpen(false)}
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 700,
+                      letterSpacing: 1,
+                      color: '#49b34c',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    LOGIN
+                  </Link>
+
+                  <Link
+                    href="/auth/signup"
+                    onClick={() => setMobileOpen(false)}
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 700,
+                      letterSpacing: 1,
+                      color: '#49b34c',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    SIGN UP
+                  </Link>
+                </div>
+              )}
+
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -457,14 +567,69 @@ export default function Navbar() {
                     letterSpacing: 1,
                     color: '#fff',
                     textDecoration: 'none',
-                    padding: '14px 0',
-                    borderBottom:
-                      '1px solid rgba(255,255,255,0.05)',
+                    padding: '3px 0',
+                    borderBottom: '1px solid rgba(255,255,255,0.05)',
                   }}
                 >
                   {link.label}
                 </Link>
               ))}
+
+              {session && (
+                <>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileOpen(false)}
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 700,
+                      letterSpacing: 1,
+                      color: '#49b34c',
+                      textDecoration: 'none',
+                      padding: '3px 0',
+                      borderBottom: '1px solid rgba(255,255,255,0.05)',
+                    }}
+                  >
+                    My Dashboard
+                  </Link>
+
+                  <Link
+                    href="/dashboard/investments"
+                    onClick={() => setMobileOpen(false)}
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 700,
+                      letterSpacing: 1,
+                      color: '#49b34c',
+                      textDecoration: 'none',
+                      padding: '3px 0',
+                      borderBottom: '1px solid rgba(255,255,255,0.05)',
+                    }}
+                  >
+                    My Investments
+                  </Link>
+
+                  <button
+                    onClick={() => {
+                      setMobileOpen(false);
+                      signOut({ callbackUrl: '/' });
+                    }}
+                    style={{
+                      textAlign: 'left',
+                      fontSize: 15,
+                      fontWeight: 700,
+                      letterSpacing: 1,
+                      color: '#ef4444',
+                      background: 'none',
+                      border: 'none',
+                      padding: '3px 0',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    SIGN OUT
+                  </button>
+                </>
+              )}
             </div>
           </motion.div>
         )}
