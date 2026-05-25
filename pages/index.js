@@ -2,7 +2,7 @@
 import Head from 'next/head';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
-import Hero from '../components/home/Hero';
+import HeroMain from '../components/home/HeroMain';
 import About from '../components/home/About';
 import HowItWorks from '../components/home/HowItWorks';
 import ProfitModel from '../components/home/ProfitModel';
@@ -21,7 +21,7 @@ export default function Home() {
       </Head>
       <Navbar />
       <main>
-        <Hero />
+        <HeroMain />
         <About />
         <HowItWorks />
         <ProfitModel />

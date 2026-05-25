@@ -1,31 +1,32 @@
-import { useRef } from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import AnimatedHeroText from './AnimatedHeroText';
+"use client";
+
+import { useEffect, useState } from "react";
+import AnimatedHeroText from "./AnimatedHeroText";
 
 export default function Hero() {
-  const scrollToRegister = () => {
-    document.getElementById('register')?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const [showMainHero, setShowMainHero] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowMainHero(true);
+    }, 5000); // ⬅️ 5 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black text-white">
+    <section className="hero">
+      {!showMainHero && (
+        <div className="intro">
+          <AnimatedHeroText />
+        </div>
+      )}
 
-  {/* Huge Background Text */}
-  <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-    <h1 className="hero-bg-text animate-pulse">
-      CIVORA
-    </h1>
-  </div>
+      {showMainHero && (
+        <HeroMain />
+      )}
+        
 
-  {/* Dark Overlay */}
-  <div className="absolute inset-0 bg-black/60 z-10"></div>
-
-  {/* Hero Content */}
-  <div className="relative z-20 text-center px-6">
-    <AnimatedHeroText />
-  </div>
-
-</section>
+    </section>
   );
 }
