@@ -1,63 +1,280 @@
+'use client';
+
+import { useState } from 'react';
+import Image from 'next/image';
 import ScrollReveal from '../ui/ScrollReveal';
 
+import groundnut from '../../styles/assets/Groundnut.jpg';
+import maize from '../../styles/assets/Maize.jpg';
+import soybean from '../../styles/assets/Soybean.jpg';
+import { Montserrat } from 'next/font/google';
+
 export default function About() {
+  const [expanded, setExpanded] = useState(false);
+
+  const crops = [
+    {
+      name: 'MAIZE',
+      image: maize,
+      desc: 'High-demand staple crop with strong market value and stable seasonal returns.',
+      roi: '20–28%',
+    },
+    {
+      name: 'GROUNDNUT',
+      image: groundnut,
+      desc: 'Premium oil crop with profitable export and processing opportunities.',
+      roi: '20–26%',
+    },
+    {
+      name: 'SOYBEAN',
+      image: soybean,
+      desc: 'High-protein commodity with increasing industrial and food demand.',
+      roi: '22–28%',
+    },
+  ];
+
   return (
-    <section className="section about">
-      <div className="section-inner">
+    <section
+      className="section about"
+      style={{
+        padding: '100px 0',
+      }}
+    >
+      <div
+        className="section-inner"
+        style={{
+          width: 'min(1200px, 92%)',
+          margin: 'auto',
+        }}
+      >
         <ScrollReveal>
-          <div className="sec-tag">About Civora Farms</div>
-          <h2 className="sec-title">What We Are — <em>And What We&apos;re Building</em></h2>
+          <div
+            className="sec-tag"
+            style={{
+              fontSize: 14,
+              fontWeight: 700,
+              letterSpacing: 1,
+              textTransform: 'uppercase',
+              color: '#5c8c3e',
+              marginBottom: 12,
+              fontFamily: 'Montserrat, sans-serif',
+              textAlign: 'center',
+            }}
+          >
+            About Civora Farms
+          </div>
+
+          <h2
+            className="sec-title"
+            style={{
+              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+              fontWeight: 800,
+              lineHeight: 1.1,
+              marginBottom: 50,
+              textAlign: 'center',
+              fontFamily: 'Montserrat, sans-serif',
+              width: '100%',
+            }}
+          >
+            <span style={{ display: 'block' }}>What We Are —</span>
+            <span style={{ display: 'block', color: '#5c8c3e' }}>
+              And What We&apos;re Building
+            </span>
+          </h2>
         </ScrollReveal>
-        <div className="about-grid">
+
+        <div
+          className="about-grid"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 50,
+            textAlign: 'center',
+          }}
+        >
+          {/* ABOUT TEXT */}
           <ScrollReveal delay={0.1}>
-            <div className="about-text">
-              <p><strong>CIVORA FARMS</strong> is an agricultural investment platform based in Kaduna State, Nigeria. We connect investors — from first-timers to experienced portfolio builders — directly to productive farmland, managed by experienced local farmers.</p>
-              <p>Our model is simple: you buy a <strong>percentage stake</strong> in one of our farm units. We plant, manage, and harvest the crops. At the end of each season, your share of the profit is paid directly to your bank account.</p>
-              <p>No farming experience needed. No land to buy. No logistics to manage. Just invest, watch your crops grow through monthly updates, and collect at harvest.</p>
-              <div className="about-highlight">
-                <div className="ah-title">WHY CIVORA EXISTS</div>
-                <div className="ah-items">
-                  {[
-                    { icon: '🌱', title: 'Access to Agriculture', desc: "Most Nigerians can't access the wealth of agriculture because land is expensive. We solve that." },
-                    { icon: '💰', title: 'Beat Inflation', desc: 'Bank savings lose value yearly. Farm returns at 20–28% per season consistently outperform.' },
-                    { icon: '🤝', title: 'Trust & Transparency', desc: 'CAC registered, NAIC insured, escrow protected. Every investor has a legal contract.' },
-                  ].map((item, i) => (
-                    <div className="ah-item" key={i}>
-                      <div className="ah-icon">{item.icon}</div>
-                      <div className="ah-text">
-                        <strong>{item.title}</strong>
-                        <span>{item.desc}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            <div
+              className="about-text"
+              style={{
+                maxWidth: 850,
+                margin: '0 auto',
+                textAlign: 'center',
+              }}
+            >
+              <p
+                style={{
+                  fontSize: 16,
+                  lineHeight: 1.9,
+                  color: '#444',
+                  marginBottom: 18,
+                  fontFamily: 'Montserrat, sans-serif',
+                }}
+              >
+                <strong>CIVORA FARMS</strong> is an agricultural investment platform based in Kaduna State, Nigeria.
+                We connect investors, from first-timers to experienced   {!expanded && (
+                <span
+                  className="ellipsis"
+                  style={{
+                    fontSize: 30,
+                    color: '#888',
+                    marginBottom: 15,
+                  }}
+                >
+                  ...
+                </span>
+              )}
+               {expanded && (
+                
+                  <span
+                    style={{
+                      fontSize: 16,
+                      lineHeight: 1.9,
+                      color: '#444',
+                      marginBottom: 18,
+                      fontFamily: 'Montserrat, sans-serif',
+                    }}
+                  >
+                    portfolio builders directly to productive farmland, managed by experienced local farmers.
+                    Our model is simple: you buy a percentage stake in one of our farm units. We plant, manage,
+                    and harvest the crops. <br/>No farming experience needed. No land to buy.
+                    No logistics to manage. Just invest, track your crops monthly, and earn at harvest.</span>
+                  
+               )}</p>
+                  
+          
+              <button
+                className="view-more-btn"
+                onClick={() => setExpanded(!expanded)}
+                style={{
+                  padding: '12px 22px',
+                  border: 'none',
+                  background: '#5c8c3e',
+                  color: 'white',
+                  borderRadius: 8,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontFamily: 'Montserrat, sans-serif',
+                  marginTop: 10,
+                }}
+              >
+                {expanded ? 'View Less' : 'View More'}
+              </button>
             </div>
           </ScrollReveal>
 
+          {/* CROPS SECTION */}
           <ScrollReveal delay={0.2}>
             <div>
-              <div className="sec-tag" style={{ marginBottom: 14 }}>Our Crops & Location</div>
-              <div className="crops-grid">
-                {[
-                  { icon: '🌽', name: 'MAIZE', desc: 'High-demand staple crop. Fast growing season with strong market prices year-round.', roi: '20–28%' },
-                  { icon: '🥜', name: 'GROUNDNUT', desc: "Premium oil crop. One of Kaduna's most profitable agricultural exports.", roi: '20–26%' },
-                  { icon: '🌿', name: 'SOYBEAN', desc: 'High-protein commodity with growing industrial and food demand across Nigeria.', roi: '22–28%' },
-                ].map((crop, i) => (
-                  <div className="crop-card" key={i}>
-                    <div className="crop-icon">{crop.icon}</div>
-                    <div className="crop-name">{crop.name}</div>
-                    <div className="crop-desc">{crop.desc}</div>
-                    <div className="crop-roi">{crop.roi} <span>est. ROI</span></div>
+
+              <div
+                className="crops-grid"
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: 22,
+                  flexWrap: 'wrap',
+                  marginTop: 30,
+                }}
+              >
+                {crops.map((crop, i) => (
+                  <div
+                    className="crop-card"
+                    key={i}
+                    style={{
+                      position: 'relative',
+                      width: 320,
+                      height: 240,
+                      overflow: 'hidden',
+                      borderRadius: 22,
+                    }}
+                  >
+                    <Image
+                      src={crop.image}
+                      alt={crop.name}
+                      fill
+                      priority
+                      style={{
+                        objectFit: 'cover',
+                      }}
+                    />
+
+                    {/* DARK OVERLAY */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'rgba(0,0,0,0.6)',
+                        zIndex: 1,
+                      }}
+                    />
+
+                    {/* TEXT OVERLAY */}
+                    <div
+                      className="crop-overlay"
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        zIndex: 2,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'flex-end',
+                        padding: 24,
+                        color: '#fff',
+                        textAlign: 'left',
+                        fontFamily: 'Montserrat, sans-serif',
+                      }}
+                    >
+                      <div
+                        className="crop-name"
+                        style={{
+                          fontSize: 24,
+                          fontWeight: 800,
+                          marginBottom: 8,
+                          color: '#fff',
+                        }}
+                      >
+                        {crop.name}
+                      </div>
+
+                      <div
+                        className="crop-desc"
+                        style={{
+                          fontSize: 14,
+                          lineHeight: 1.6,
+                          marginBottom: 14,
+                          maxWidth: '90%',
+                          color: '#fff',
+                        }}
+                      >
+                        {crop.desc}
+                      </div>
+
+                      <div
+                        className="crop-roi"
+                        style={{
+                          fontSize: 18,
+                          fontWeight: 700,
+                          color: '#fff',
+                        }}
+                      >
+                        {crop.roi}{' '}
+                        <span
+                          style={{
+                            fontSize: 13,
+                            fontWeight: 500,
+                            opacity: 0.9,
+                            color: '#fff',
+                          }}
+                        >
+                          est. ROI
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 ))}
-                <div className="location-card">
-                  <div className="lc-icon">📍</div>
-                  <div>
-                    <div className="lc-name">Kaduna State, Nigeria</div>
-                    <div className="lc-desc">Zaria Road, Kafanchan. One of Nigeria&apos;s most fertile and productive agricultural regions — ideal climate, rich soil, established market routes.</div>
-                  </div>
-                </div>
               </div>
             </div>
           </ScrollReveal>
@@ -66,4 +283,3 @@ export default function About() {
     </section>
   );
 }
-

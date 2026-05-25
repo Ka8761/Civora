@@ -42,7 +42,7 @@ export default function ForgotPasswordPage() {
           <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(201,146,26,0.15)', borderRadius: 16, padding: '40px 36px' }}>
             {!sent ? (
               <>
-                <div style={{ fontSize: 40, textAlign: 'center', marginBottom: 16 }}>🔑</div>
+                
                 <h1 style={{ fontFamily: "'Playfair Display'", fontSize: 24, fontWeight: 900, color: '#fff', textAlign: 'center', marginBottom: 8 }}>Forgot Password?</h1>
                 <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', textAlign: 'center', marginBottom: 28 }}>Enter your email address and we&apos;ll send you a reset link.</p>
                 <form onSubmit={handleSubmit}>

@@ -31,9 +31,9 @@ export default function Footer() {
         </div>
         <div>
           <div className="footer-contact-title">CONTACT US</div>
-          <div className="footer-contact-item"><span>📍</span> Zaria Road, Kafanchan, Kaduna State</div>
-          <div className="footer-contact-item"><span>📞</span> +234 903 011 7888</div>
-          <div className="footer-contact-item"><span>✉</span> civorafarms@gmail.com</div>
+          <div className="footer-contact-item">Zaria Road, Kafanchan, Kaduna State</div>
+          <div className="footer-contact-item">+234 903 011 7888</div>
+          <div className="footer-contact-item">civorafarms@gmail.com</div>
         </div>
       </div>
       <div className="footer-disc">

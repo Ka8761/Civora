@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Head from 'next/head';
 import { motion } from 'framer-motion';
+import connectDB from '../../lib/mongodb';
 import toast from 'react-hot-toast';
 
 export default function LoginPage() {
@@ -16,6 +17,8 @@ export default function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+    await connectDB();
+    console.log('connected to mongodb')
     const res = await signIn('credentials', {
       redirect: false,
       email: form.email,

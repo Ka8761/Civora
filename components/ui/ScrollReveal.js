@@ -22,6 +22,12 @@ export default function ScrollReveal({ children, delay = 0 }) {
       initial="hidden"
       animate={controls}
       transition={{ duration: 0.65, delay, ease: 'easeOut' }}
+      style={{
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none',
+        background: 'transparent',
+      }}
     >
       {children}
     </motion.div>

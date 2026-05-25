@@ -8,8 +8,6 @@ const STATUS_COLORS = {
   cancelled: { bg: 'rgba(239,68,68,0.1)', text: '#ef4444', border: 'rgba(239,68,68,0.2)' },
 };
 
-const CROP_ICONS = { Maize: '🌽', Groundnut: '🥜', Soybean: '🌿' };
-
 export default function InvestmentCard({ investment, delay = 0 }) {
   const { crop, tier, amount, status, startDate, roiPercent, projectedReturn, farmLocation } = investment;
   const sc = STATUS_COLORS[status] || STATUS_COLORS.pending;
@@ -74,7 +72,7 @@ export default function InvestmentCard({ investment, delay = 0 }) {
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>
-          <div style={{ fontSize: 12, color: '#9a9a9a' }}>📍 {farmLocation}</div>
+          <div style={{ fontSize: 12, color: '#9a9a9a' }}> {farmLocation}</div>
           <div style={{ fontFamily: "'Barlow Condensed'", fontSize: 10, color: '#9a9a9a', letterSpacing: 1 }}>
             {startDate ? format(new Date(startDate), 'MMM yyyy') : '—'}
           </div>

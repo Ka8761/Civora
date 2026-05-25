@@ -1,129 +1,381 @@
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import Head from 'next/head';
+import { loadStripe } from '@stripe/stripe-js';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import Navbar from '../components/layout/Navbar';
+import Footer from '../components/layout/Footer';
+import SupportButton from '../components/ui/SupportButton';
+import ScrollReveal from '../components/ui/ScrollReveal';
 
-const STATES = ['Kaduna','Abuja (FCT)','Lagos','Kano','Katsina','Sokoto','Zamfara','Niger','Plateau','Nasarawa','Bauchi','Gombe','Adamawa','Taraba','Borno','Yobe','Jigawa','Kebbi','Kwara','Kogi','Benue','Rivers','Delta','Enugu','Anambra','Imo','Abia','Ogun','Oyo','Osun','Ondo','Ekiti','Cross River','Akwa Ibom','Bayelsa','Edo','Outside Nigeria'];
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
-export default function SignupPage() {
+const CROPS = [
+  { id: 'Maize', icon: '', desc: 'High-demand staple crop. Strong year-round market prices.', roi: '20–28%' },
+  { id: 'Groundnut', icon: '', desc: "Premium oil crop. One of Kaduna's most profitable exports.", roi: '20–26%' },
+  { id: 'Soybean', icon: '', desc: 'High-protein commodity with growing industrial demand.', roi: '22–28%' },
+];
+
+const TIERS = [
+  { id: 'Seedling', min: 50000, label: '₦50,000', popular: false },
+  { id: 'Harvest', min: 250000, label: '₦250,000', popular: true },
+  { id: 'Landowner', min: 1000000, label: '₦1,000,000+', popular: false },
+];
+
+export default function InvestPage() {
+  const { data: session } = useSession();
   const router = useRouter();
-  const [form, setForm] = useState({ name: '', email: '', phone: '', state: '', password: '', confirm: '' });
+  const [selectedCrop, setSelectedCrop] = useState('');
+  const [selectedTier, setSelectedTier] = useState('');
+  const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
+  const [step, setStep] = useState(1); // 1=crop, 2=tier, 3=amount, 4=checkout
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
-    if (form.password !== form.confirm) { toast.error('Passwords do not match'); return; }
-    if (form.password.length < 8) { toast.error('Password must be at least 8 characters'); return; }
+  const handleCheckout = async () => {
+    if (!session) {
+      router.push('/auth/login?redirect=/invest');
+      return;
+    }
+    if (!selectedCrop || !selectedTier || !amount) {
+      toast.error('Please complete all selections');
+      return;
+    }
+    const numAmount = parseInt(amount.replace(/,/g, ''));
+    const tierObj = TIERS.find(t => t.id === selectedTier);
+    if (numAmount < tierObj.min) {
+      toast.error(`Minimum investment for ${selectedTier} tier is ₦${tierObj.min.toLocaleString()}`);
+      return;
+    }
+
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/signup', {
+      const res = await fetch('/api/investments/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: form.name, email: form.email, phone: form.phone, state: form.state, password: form.password }),
+        body: JSON.stringify({ crop: selectedCrop, tier: selectedTier, amount: numAmount }),
       });
-      const data = await res.json();
-      if (!res.ok) { toast.error(data.error || 'Signup failed'); setLoading(false); return; }
-      toast.success('Account created! Signing you in...');
-      await signIn('credentials', { redirect: false, email: form.email, password: form.password });
-      router.push('/dashboard');
+      const { sessionId, error } = await res.json();
+      if (error) {
+        toast.error(error);
+        setLoading(false);
+        return;
+      }
+      const stripe = await stripePromise;
+      await stripe.redirectToCheckout({ sessionId });
     } catch (err) {
-      toast.error('Something went wrong. Please try again.');
+      toast.error('Payment initialization failed. Please try again.');
       setLoading(false);
     }
   };
 
-  const handleGoogle = async () => {
-    setGoogleLoading(true);
-    await signIn('google', { callbackUrl: '/dashboard' });
-  };
-
   return (
     <>
-      <Head><title>Create Account — CIVORA FARMS</title></Head>
-      <div style={{ minHeight: '100vh', background: 'var(--navy)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-        <div style={{ position: 'absolute', inset: 0 }}>
-          <div className="hero-bg-glow" />
-          <div className="hero-dots" />
-        </div>
+      <Head><title>Invest Now — CIVORA FARMS</title></Head>
+      <Navbar />
+      <div style={{ background: '#ffffff', minHeight: '100vh', paddingTop: 72, fontFamily: 'Montserrat, sans-serif' }}>
+        <style jsx>{`
+          .hover-box {
+            transition: all 0.25s ease;
+          }
+          .hover-box:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+            border-color: #0f2f1d !important;
+          }
+          .hover-btn {
+            transition: all 0.25s ease;
+          }
+          .hover-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px rgba(15, 47, 29, 0.12);
+          }
+          @media (max-width: 900px) {
+            .invest-hero {
+              padding: 56px 20px 36px !important;
+            }
+            .invest-wrap {
+              padding: 0 20px 56px !important;
+            }
+            .invest-grid {
+              grid-template-columns: 1fr !important;
+            }
+            .invest-step-row {
+              flex-wrap: wrap;
+              justify-content: flex-start !important;
+              gap: 10px !important;
+            }
+            .invest-step-item {
+              flex-wrap: wrap;
+            }
+            .invest-title {
+              font-size: clamp(30px, 8vw, 52px) !important;
+            }
+          }
+          @media (max-width: 520px) {
+            .invest-hero {
+              padding: 44px 16px 28px !important;
+            }
+            .invest-wrap {
+              padding: 0 16px 44px !important;
+            }
+            .invest-card {
+              padding: 22px !important;
+            }
+            .invest-input {
+              font-size: 20px !important;
+            }
+          }
+        `}</style>
 
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          style={{ width: '100%', maxWidth: 480, position: 'relative', zIndex: 2 }}
-        >
-          <div style={{ textAlign: 'center', marginBottom: 32 }}>
-            <Link href="/" style={{ textDecoration: 'none' }}>
-              <div style={{ fontFamily: "'Barlow Condensed'", fontSize: 28, fontWeight: 800, letterSpacing: 5, color: 'var(--gold)' }}>CIVORA FARMS</div>
-              <div style={{ fontFamily: "'Barlow Condensed'", fontSize: 9, letterSpacing: 4, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>CREATE YOUR INVESTOR ACCOUNT</div>
-            </Link>
+        <div style={{ background: '#ffffff', minHeight: '100vh' }}>
+          {/* Hero */}
+          <div className="invest-hero" style={{ maxWidth: 1100, margin: '0 auto', padding: '80px 40px 60px', textAlign: 'center' }}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+              <div style={{ fontSize: 11, letterSpacing: 5, color: '#0f2f1d', marginBottom: 16, fontWeight: 700 }}>
+                2026 SEASON NOW OPEN
+              </div>
+              <h1 className="invest-title" style={{ fontSize: 'clamp(36px,6vw,64px)', fontWeight: 800, color: '#000', lineHeight: 1.05, marginBottom: 16, fontFamily: 'Montserrat, sans-serif' }}>
+                Invest in <em style={{ color: '#0f2f1d', fontStyle: 'italic' }}>Real Farmland</em>
+              </h1>
+              <p style={{ fontSize: 18, color: '#444', maxWidth: 560, margin: '0 auto', lineHeight: 1.6 }}>
+                Choose your crop, pick your investment tier, and start earning at harvest.
+              </p>
+            </motion.div>
           </div>
 
-          <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(201,146,26,0.15)', borderRadius: 16, padding: '40px 36px' }}>
-            <h1 style={{ fontFamily: "'Playfair Display'", fontSize: 24, fontWeight: 900, color: '#fff', marginBottom: 4 }}>Start Investing</h1>
-            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 28 }}>Join thousands of Nigerian investors growing wealth through farmland.</p>
-
-            <button onClick={handleGoogle} disabled={googleLoading}
-              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, background: '#fff', border: 'none', borderRadius: 8, padding: '13px 20px', cursor: 'pointer', marginBottom: 20, fontFamily: "'Barlow', sans-serif", fontSize: 14, fontWeight: 600, color: '#333' }}>
-              <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
-              {googleLoading ? 'Connecting...' : 'Sign up with Google'}
-            </button>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
-              <span style={{ fontFamily: "'Barlow Condensed'", fontSize: 10, letterSpacing: 3, color: 'rgba(255,255,255,0.3)' }}>OR</span>
-              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+          {/* Steps */}
+          <div className="invest-wrap" style={{ maxWidth: 900, margin: '0 auto', padding: '0 40px 80px' }}>
+            {/* Progress */}
+            <div className="invest-step-row" style={{ display: 'flex', gap: 8, marginBottom: 48, justifyContent: 'center', alignItems: 'center' }}>
+              {['Pick Crop', 'Choose Tier', 'Set Amount', 'Checkout'].map((s, i) => (
+                <div key={i} className="invest-step-item" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, background: step > i + 1 ? '#0f2f1d' : step === i + 1 ? '#0f2f1d' : 'rgba(0,0,0,0.08)', color: step >= i + 1 ? '#fff' : '#666' }}>
+                    {i + 1}
+                  </div>
+                  <span style={{ fontSize: 11, letterSpacing: 2, color: step >= i + 1 ? '#0f2f1d' : '#777' }}>{s}</span>
+                  {i < 3 && <div style={{ width: 24, height: 1, background: 'rgba(0,0,0,0.12)' }} />}
+                </div>
+              ))}
             </div>
 
-            <form onSubmit={handleSignup}>
-              {[
-                { label: 'Full Name *', key: 'name', type: 'text', placeholder: 'Your full name' },
-                { label: 'Email Address *', key: 'email', type: 'email', placeholder: 'your@email.com' },
-                { label: 'Phone / WhatsApp *', key: 'phone', type: 'tel', placeholder: '+234 000 000 0000' },
-              ].map((field) => (
-                <div className="form-group" key={field.key}>
-                  <label className="form-label" style={{ color: 'rgba(255,255,255,0.6)' }}>{field.label}</label>
-                  <input className="form-input" type={field.type} value={form[field.key]} onChange={e => setForm(p => ({ ...p, [field.key]: e.target.value }))} placeholder={field.placeholder} required style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,255,255,0.1)', color: '#fff' }} />
+            <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35 }}>
+              {/* Step 1: Crop */}
+              {step === 1 && (
+                <div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: '#000', textAlign: 'center', marginBottom: 32, fontFamily: 'Montserrat, sans-serif' }}>
+                    Which crop would you like to invest in?
+                  </div>
+                  <div className="invest-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+                    {CROPS.map((crop) => (
+                      <button
+                        key={crop.id}
+                        onClick={() => {
+                          setSelectedCrop(crop.id);
+                          setStep(2);
+                        }}
+                        className="hover-box invest-card"
+                        style={{
+                          background: selectedCrop === crop.id ? 'rgba(15,47,29,0.06)' : '#fff',
+                          border: selectedCrop === crop.id ? '2px solid #0f2f1d' : '2px solid rgba(0,0,0,0.08)',
+                          borderRadius: 12,
+                          padding: 28,
+                          cursor: 'pointer',
+                          textAlign: 'center',
+                          color: '#000',
+                          fontFamily: 'Montserrat, sans-serif',
+                        }}
+                      >
+                        <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 12, color: '#000' }}>{crop.id}</div>
+                        <div style={{ fontSize: 12, color: '#444', lineHeight: 1.6, marginBottom: 12 }}>{crop.desc}</div>
+                        <div style={{ fontSize: 20, fontWeight: 800, color: '#0f2f1d' }}>{crop.roi}</div>
+                        <div style={{ fontSize: 10, color: '#777', letterSpacing: 2 }}>EST. ROI</div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              ))}
+              )}
 
-              <div className="form-group">
-                <label className="form-label" style={{ color: 'rgba(255,255,255,0.6)' }}>State of Residence</label>
-                <select className="form-select" value={form.state} onChange={e => setForm(p => ({ ...p, state: e.target.value }))} style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,255,255,0.1)', color: form.state ? '#fff' : 'rgba(255,255,255,0.4)' }}>
-                  <option value="">Select your state...</option>
-                  {STATES.map(s => <option key={s} style={{ background: '#112240', color: '#fff' }}>{s}</option>)}
-                </select>
-              </div>
-
-              {[
-                { label: 'Password *', key: 'password', placeholder: '8+ characters' },
-                { label: 'Confirm Password *', key: 'confirm', placeholder: 'Repeat password' },
-              ].map((field) => (
-                <div className="form-group" key={field.key}>
-                  <label className="form-label" style={{ color: 'rgba(255,255,255,0.6)' }}>{field.label}</label>
-                  <input className="form-input" type="password" value={form[field.key]} onChange={e => setForm(p => ({ ...p, [field.key]: e.target.value }))} placeholder={field.placeholder} required style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,255,255,0.1)', color: '#fff' }} />
+              {/* Step 2: Tier */}
+              {step === 2 && (
+                <div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: '#000', textAlign: 'center', marginBottom: 32, fontFamily: 'Montserrat, sans-serif' }}>
+                    Choose your investment tier
+                  </div>
+                  <div className="invest-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+                    {TIERS.map((tier) => (
+                      <button
+                        key={tier.id}
+                        onClick={() => {
+                          setSelectedTier(tier.id);
+                          setStep(3);
+                        }}
+                        className="hover-box invest-card"
+                        style={{
+                          background: tier.popular ? 'rgba(15,47,29,0.06)' : '#fff',
+                          border: `2px solid ${tier.popular ? '#0f2f1d' : 'rgba(0,0,0,0.08)'}`,
+                          borderRadius: 12,
+                          padding: 28,
+                          cursor: 'pointer',
+                          position: 'relative',
+                          textAlign: 'center',
+                          color: '#000',
+                          fontFamily: 'Montserrat, sans-serif',
+                        }}
+                      >
+                        {tier.popular && (
+                          <div style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)', background: '#0f2f1d', color: '#fff', fontSize: 9, fontWeight: 800, letterSpacing: 2, padding: '4px 12px', borderRadius: 20 }}>
+                            POPULAR
+                          </div>
+                        )}
+                        <div style={{ fontSize: 22, fontWeight: 800, color: '#0f2f1d', marginBottom: 8 }}>{tier.id}</div>
+                        <div style={{ fontSize: 32, fontWeight: 900, color: '#000', marginBottom: 4 }}>{tier.label}</div>
+                        <div style={{ fontSize: 10, color: '#777', letterSpacing: 2 }}>MINIMUM</div>
+                      </button>
+                    ))}
+                  </div>
+                  <button onClick={() => setStep(1)} style={{ display: 'block', margin: '24px auto 0', background: 'none', border: 'none', color: '#666', cursor: 'pointer', fontSize: 12, letterSpacing: 2, fontFamily: 'Montserrat, sans-serif' }}>
+                    ← BACK
+                  </button>
                 </div>
-              ))}
+              )}
 
-              <button type="submit" disabled={loading}
-                style={{ width: '100%', marginTop: 8, padding: '15px', background: loading ? 'rgba(201,146,26,0.5)' : 'var(--gold)', color: 'var(--navy)', fontFamily: "'Barlow Condensed'", fontSize: 14, fontWeight: 800, letterSpacing: 3, border: 'none', borderRadius: 8, cursor: loading ? 'default' : 'pointer', transition: 'all 0.2s' }}>
-                {loading ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT →'}
-              </button>
-            </form>
+              {/* Step 3: Amount */}
+              {step === 3 && (
+                <div style={{ maxWidth: 480, margin: '0 auto' }}>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: '#000', textAlign: 'center', marginBottom: 8, fontFamily: 'Montserrat, sans-serif' }}>
+                    How much are you investing?
+                  </div>
+                  <div style={{ textAlign: 'center', marginBottom: 32, fontSize: 12, color: '#666', letterSpacing: 2 }}>
+                    {selectedCrop} · {selectedTier} Tier
+                  </div>
+                  <div className="hover-box invest-card" style={{ background: '#fff', border: '1px solid rgba(15,47,29,0.18)', borderRadius: 12, padding: 32 }}>
+                    <label style={{ fontSize: 10, letterSpacing: 3, color: '#0f2f1d', display: 'block', marginBottom: 10 }}>
+                      INVESTMENT AMOUNT (₦)
+                    </label>
+                    <input
+                      type="number"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      placeholder={`Minimum ₦${TIERS.find(t => t.id === selectedTier)?.min?.toLocaleString()}`}
+                      className="invest-input"
+                      style={{
+                        width: '100%',
+                        background: '#fff',
+                        border: '1.5px solid rgba(0,0,0,0.12)',
+                        borderRadius: 8,
+                        padding: '16px 20px',
+                        fontSize: 28,
+                        fontWeight: 800,
+                        color: '#000',
+                        outline: 'none',
+                        textAlign: 'center',
+                        fontFamily: 'Montserrat, sans-serif',
+                      }}
+                    />
+                    {amount > 0 && (
+                      <div style={{ marginTop: 20, background: 'rgba(15,47,29,0.06)', border: '1px solid rgba(15,47,29,0.18)', borderRadius: 8, padding: 16 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                          <span style={{ fontSize: 12, color: '#444' }}>Projected return (20%)</span>
+                          <span style={{ fontWeight: 800, color: '#0f2f1d' }}>₦{(parseInt(amount) * 0.2).toLocaleString()}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: 12, color: '#444' }}>You collect at harvest</span>
+                          <span style={{ fontWeight: 800, color: '#000' }}>₦{(parseInt(amount) * 1.2).toLocaleString()}</span>
+                        </div>
+                      </div>
+                    )}
+                    <button
+                      onClick={() => setStep(4)}
+                      disabled={!amount}
+                      className="hover-btn"
+                      style={{
+                        width: '100%',
+                        marginTop: 20,
+                        padding: 16,
+                        background: amount ? '#0f2f1d' : 'rgba(0,0,0,0.08)',
+                        color: amount ? '#fff' : '#777',
+                        fontSize: 14,
+                        fontWeight: 800,
+                        letterSpacing: 3,
+                        border: 'none',
+                        borderRadius: 8,
+                        cursor: amount ? 'pointer' : 'default',
+                        transition: 'all 0.2s',
+                        fontFamily: 'Montserrat, sans-serif',
+                      }}
+                    >
+                      CONTINUE TO PAYMENT →
+                    </button>
+                  </div>
+                  <button onClick={() => setStep(2)} style={{ display: 'block', margin: '16px auto 0', background: 'none', border: 'none', color: '#666', cursor: 'pointer', fontSize: 12, letterSpacing: 2, fontFamily: 'Montserrat, sans-serif' }}>
+                    ← BACK
+                  </button>
+                </div>
+              )}
 
-            <p style={{ textAlign: 'center', marginTop: 20, fontSize: 11, color: 'rgba(255,255,255,0.3)', lineHeight: 1.6 }}>
-              By signing up, you agree to our Terms of Service and Privacy Policy.
-            </p>
-            <p style={{ textAlign: 'center', marginTop: 12, fontFamily: "'Barlow Condensed'", fontSize: 12, color: 'rgba(255,255,255,0.4)', letterSpacing: 1 }}>
-              Already have an account?{' '}
-              <Link href="/auth/login" style={{ color: 'var(--gold)', textDecoration: 'none', fontWeight: 700 }}>SIGN IN</Link>
-            </p>
+              {/* Step 4: Checkout */}
+              {step === 4 && (
+                <div style={{ maxWidth: 480, margin: '0 auto' }}>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: '#000', textAlign: 'center', marginBottom: 32, fontFamily: 'Montserrat, sans-serif' }}>
+                    Review & Pay
+                  </div>
+                  <div className="hover-box" style={{ background: '#fff', border: '1px solid rgba(15,47,29,0.18)', borderRadius: 12, padding: 32, marginBottom: 20 }}>
+                    {[
+                      { k: 'Crop', v: selectedCrop },
+                      { k: 'Tier', v: selectedTier },
+                      { k: 'Amount', v: `₦${parseInt(amount)?.toLocaleString()}` },
+                      { k: 'Projected Return (est.)', v: `₦${(parseInt(amount) * 1.2)?.toLocaleString()}` },
+                      { k: 'Season Duration', v: '4–6 months' },
+                      { k: 'Farm Location', v: 'Kaduna State, Nigeria' },
+                    ].map((row, i) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: i < 5 ? '1px solid rgba(0,0,0,0.06)' : 'none' }}>
+                        <span style={{ fontSize: 12, letterSpacing: 1, color: '#666' }}>{row.k}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#000' }}>{row.v}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {!session && (
+                    <div style={{ background: 'rgba(15,47,29,0.08)', border: '1px solid rgba(15,47,29,0.18)', borderRadius: 8, padding: 16, marginBottom: 16, fontSize: 12, color: '#0f2f1d', textAlign: 'center', letterSpacing: 1 }}>
+                      You need to be logged in to complete your investment.
+                    </div>
+                  )}
+                  <button
+                    onClick={handleCheckout}
+                    disabled={loading}
+                    className="hover-btn"
+                    style={{
+                      width: '100%',
+                      padding: 18,
+                      background: loading ? 'rgba(15,47,29,0.5)' : '#0f2f1d',
+                      color: '#fff',
+                      fontSize: 15,
+                      fontWeight: 800,
+                      letterSpacing: 3,
+                      border: 'none',
+                      borderRadius: 8,
+                      cursor: loading ? 'default' : 'pointer',
+                      transition: 'all 0.2s',
+                      fontFamily: 'Montserrat, sans-serif',
+                    }}
+                  >
+                    {loading ? 'REDIRECTING TO STRIPE...' : session ? 'PAY WITH STRIPE →' : 'LOGIN TO CONTINUE →'}
+                  </button>
+                  <p style={{ textAlign: 'center', fontSize: 11, color: '#666', marginTop: 12, fontStyle: 'italic' }}>
+                    Payments processed securely by Stripe. Your funds are held in escrow.
+                  </p>
+                  <button onClick={() => setStep(3)} style={{ display: 'block', margin: '12px auto 0', background: 'none', border: 'none', color: '#666', cursor: 'pointer', fontSize: 12, letterSpacing: 2, fontFamily: 'Montserrat, sans-serif' }}>
+                    ← BACK
+                  </button>
+                </div>
+              )}
+            </motion.div>
           </div>
-        </motion.div>
+        </div>
+
+        <Footer />
+        <SupportButton />
       </div>
     </>
   );

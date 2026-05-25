@@ -4,9 +4,9 @@ import { useSession, signOut } from 'next-auth/react';
 import { motion } from 'framer-motion';
 
 const adminNav = [
-  { href: '/admin', icon: '📊', label: 'Overview' },
-  { href: '/admin/users', icon: '👥', label: 'Users' },
-  { href: '/admin/investments', icon: '🌾', label: 'Investments' },
+  { href: '/admin', label: 'Overview' },
+  { href: '/admin/users', label: 'Users' },
+  { href: '/admin/investments',  label: 'Investments' },
 ];
 
 export default function AdminLayout({ children, title }) {
@@ -30,7 +30,7 @@ export default function AdminLayout({ children, title }) {
                 href={item.href}
                 style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', borderRadius: 8, marginBottom: 4, textDecoration: 'none', background: active ? 'rgba(201,146,26,0.12)' : 'transparent' }}
               >
-                <span>{item.icon}</span>
+           
                 <span style={{ fontFamily: "'Barlow Condensed'", fontSize: 13, fontWeight: 700, letterSpacing: 1, color: active ? 'var(--gold)' : 'rgba(255,255,255,0.6)' }}>{item.label}</span>
               </Link>
             );
@@ -38,11 +38,11 @@ export default function AdminLayout({ children, title }) {
         </nav>
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 16 }}>
           <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', textDecoration: 'none', marginBottom: 4 }}>
-            <span>👤</span>
+
             <span style={{ fontFamily: "'Barlow Condensed'", fontSize: 12, color: 'rgba(255,255,255,0.4)', fontWeight: 700, letterSpacing: 1 }}>My Dashboard</span>
           </Link>
           <button onClick={() => signOut({ callbackUrl: '/' })} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer', width: '100%' }}>
-            <span>🚪</span>
+         
             <span style={{ fontFamily: "'Barlow Condensed'", fontSize: 12, color: 'rgba(239,68,68,0.7)', fontWeight: 700, letterSpacing: 1 }}>Sign Out</span>
           </button>
         </div>

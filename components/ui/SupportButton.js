@@ -29,13 +29,13 @@ export default function SupportButton() {
               rel="noreferrer"
               style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#25D366', color: '#fff', padding: '10px 14px', borderRadius: 8, textDecoration: 'none', marginBottom: 8, fontSize: 13, fontWeight: 700 }}
             >
-              💬 WhatsApp Us
+              WhatsApp Us
             </a>
             <a
               href="tel:+2349030117888"
               style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(201,146,26,0.1)', border: '1px solid rgba(201,146,26,0.3)', color: 'var(--gold)', padding: '10px 14px', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 700 }}
             >
-              📞 Call: +234 903 011 7888
+              Call: +234 903 011 7888
             </a>
           </motion.div>
         )}
