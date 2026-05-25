@@ -23,8 +23,17 @@ export default function AdminUsers() {
     u.state?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const rowStyle = { display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1fr', gap: 12, alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' };
-
+  const rowStyle = {
+  display: 'grid',
+  gridTemplateColumns:
+    typeof window !== 'undefined' && window.innerWidth <= 768
+      ? '1fr'
+      : '2fr 2fr 1fr 1fr 1fr',
+  gap: 12,
+  alignItems: 'center',
+  padding: '14px 20px',
+  borderBottom: '1px solid rgba(255,255,255,0.05)',
+};
   return (
     <>
       <Head><title>Manage Users — CIVORA FARMS Admin</title></Head>

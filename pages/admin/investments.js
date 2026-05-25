@@ -45,15 +45,24 @@ export default function AdminInvestments() {
     }
   };
 
-  const rowStyle = { display: 'grid', gridTemplateColumns: '2fr 1.5fr 1fr 1fr 1fr 1fr', gap: 12, alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' };
-
+const rowStyle = {
+  display: 'grid',
+  gridTemplateColumns:
+    typeof window !== 'undefined' && window.innerWidth <= 768
+      ? '1fr'
+      : '2fr 1.5fr 1fr 1fr 1fr 1fr',
+  gap: 12,
+  alignItems: 'center',
+  padding: '14px 20px',
+  borderBottom: '1px solid rgba(255,255,255,0.05)',
+};
   return (
     <>
       <Head><title>Manage Investments — CIVORA FARMS Admin</title></Head>
       <AdminLayout title="Manage Investments">
 
         {/* Table */}
-        <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden' }}>
+        <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'auto' }}>
           {/* Header */}
           <div style={{ ...rowStyle, background: 'rgba(201,146,26,0.06)', borderBottom: '1px solid rgba(201,146,26,0.15)' }}>
             {['INVESTOR', 'CROP / TIER', 'AMOUNT', 'ROI %', 'STATUS', 'ACTION'].map((h, i) => (

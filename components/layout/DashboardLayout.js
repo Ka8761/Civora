@@ -82,26 +82,52 @@ export default function DashboardLayout({ children, title }) {
       `}</style>
 
       <button
-        className="sidebar-toggle"
-        onClick={() => setSidebarOpen(true)}
-        style={{
-          display: 'none',
-          position: 'fixed',
-          top: 16,
-          right: 16,
-          zIndex: 80,
-          background: '#0f2f1d',
-          color: '#fff',
-          border: 'none',
-          borderRadius: 10,
-          padding: '10px 14px',
-          cursor: 'pointer',
-          fontFamily: 'Montserrat, sans-serif',
-          fontWeight: 700,
-        }}
-      >
-        Menu
-      </button>
+  className="sidebar-toggle"
+  onClick={() => setSidebarOpen(true)}
+  style={{
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 4,
+    position: 'fixed',
+    top: 16,
+    right: 16,
+    zIndex: 80,
+    background: '#0f2f1d',
+    border: 'none',
+    borderRadius: 10,
+    padding: '12px',
+    cursor: 'pointer',
+    width: 48,
+    height: 48,
+  }}
+>
+  <span
+    style={{
+      width: 22,
+      height: 2,
+      background: '#fff',
+      borderRadius: 2,
+    }}
+  />
+  <span
+    style={{
+      width: 22,
+      height: 2,
+      background: '#fff',
+      borderRadius: 2,
+    }}
+  />
+  <span
+    style={{
+      width: 22,
+      height: 2,
+      background: '#fff',
+      borderRadius: 2,
+    }}
+  />
+</button>
 
       {sidebarOpen && (
         <div
@@ -132,7 +158,7 @@ export default function DashboardLayout({ children, title }) {
           color: '#fff',
         }}
       >
-        <div style={{ padding: '28px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ padding: '28px 24px', marginTop: 16, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <Link href="/" style={{ textDecoration: 'none' }}>
             <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: 3, color: '#ffffff' }}>CIVORA FARMS</div>
             <div style={{ fontSize: 9, letterSpacing: 3, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
