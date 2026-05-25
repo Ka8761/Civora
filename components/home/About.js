@@ -5,7 +5,7 @@ import Image from 'next/image';
 import ScrollReveal from '../ui/ScrollReveal';
 
 import groundnut from '../../styles/assets/Groundnut.jpg';
-import maizee from '../../styles/assets/Maize.jpg';
+import maizee from '../../styles/assets/maize.jpg';
 import soybean from '../../styles/assets/Soybean.jpg';
 
 export default function About() {
