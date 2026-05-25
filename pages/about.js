@@ -43,10 +43,10 @@ export default function AboutPage() {
                 <div>
                   <div className="sec-tag" style={{ marginBottom: 16 }}>Our Values</div>
                   {[
-                    { icon: '🌱', title: 'Transparency First', desc: 'Every naira is tracked. Every investor has a legal contract. Independent audits before every payout.' },
-                    { icon: '🤝', title: 'Community Impact', desc: 'We employ local Kaduna farmers, support rural agriculture, and contribute to Nigeria\'s food security.' },
-                    { icon: '🏆', title: 'Excellence in Agriculture', desc: 'Our farm management team brings decades of experience in Kaduna State crop production.' },
-                    { icon: '🔒', title: 'Investor Protection', desc: 'Escrow-held capital. NAIC crop insurance. Legal agreements. Multiple layers of protection.' },
+                    { title: 'Transparency First', desc: 'Every naira is tracked. Every investor has a legal contract. Independent audits before every payout.' },
+                    { title: 'Community Impact', desc: 'We employ local Kaduna farmers, support rural agriculture, and contribute to Nigeria\'s food security.' },
+                    { title: 'Excellence in Agriculture', desc: 'Our farm management team brings decades of experience in Kaduna State crop production.' },
+                    { title: 'Investor Protection', desc: 'Escrow-held capital. NAIC crop insurance. Legal agreements. Multiple layers of protection.' },
                   ].map((v, i) => (
                     <div key={i} style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
                       <div style={{ width: 44, height: 44, borderRadius: 10, background: 'var(--cream)', border: '1px solid rgba(26,58,31,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>{v.icon}</div>

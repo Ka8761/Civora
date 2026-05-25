@@ -46,9 +46,9 @@ export default function ForgotPasswordPage() {
                 <h1 style={{ fontFamily: "'Playfair Display'", fontSize: 24, fontWeight: 900, color: '#fff', textAlign: 'center', marginBottom: 8 }}>Forgot Password?</h1>
                 <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', textAlign: 'center', marginBottom: 28 }}>Enter your email address and we&apos;ll send you a reset link.</p>
                 <form onSubmit={handleSubmit}>
-                  <div className="form-group">
-                    <label className="form-label" style={{ color: 'rgba(255,255,255,0.6)' }}>Email Address</label>
-                    <input className="form-input" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" required style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,255,255,0.1)', color: '#fff' }} />
+                  <div className="form-group mb-4">
+                    <label className="form-label" style={{ color: 'rgba(255, 255, 255, 0.75)' }}>Email Address: </label>
+                    <input className="form-input" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" required style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', width: '100%', padding: '12px', color: '#fff' }} />
                   </div>
                   <button type="submit" disabled={loading}
                     style={{ width: '100%', padding: '14px', background: loading ? 'rgba(201,146,26,0.5)' : 'var(--gold)', color: 'var(--navy)', fontFamily: "'Barlow Condensed'", fontSize: 14, fontWeight: 800, letterSpacing: 3, border: 'none', borderRadius: 8, cursor: loading ? 'default' : 'pointer' }}>

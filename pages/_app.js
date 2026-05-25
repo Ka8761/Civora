@@ -2,7 +2,12 @@ import { SessionProvider } from 'next-auth/react';
 import { Toaster } from 'react-hot-toast';
 import '../styles/globals.css';
 import { Montserrat } from 'next/font/google';
+import '@fontsource/montserrat/400.css';
+import '@fontsource/montserrat/500.css';
+import '@fontsource/montserrat/600.css';
+import '@fontsource/montserrat/700.css';
 
+import '../styles/globals.css';
 const montserrat = Montserrat({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700', '800'],
