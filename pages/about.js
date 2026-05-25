@@ -26,41 +26,157 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* Mission */}
-        <section className="section about">
-          <div className="section-inner">
-            <div className="about-grid">
-              <ScrollReveal>
-                <div className="about-text">
-                  <div className="sec-tag">Our Mission</div>
-                  <h2 className="sec-title">Democratizing <em>Agricultural Wealth</em></h2>
-                  <p>For generations, the wealth created by Nigerian farmland has been concentrated in the hands of those who already own land. CIVORA FARMS changes that.</p>
-                  <p>We believe that a civil servant in Kaduna, a student in Lagos, or a trader in Kano should be able to invest in real, productive farmland and earn real returns — just like large landowners and agribusiness corporations have always done.</p>
-                  <p>Our technology platform makes this possible by pooling investor capital into managed farm units, handled end-to-end by our professional agricultural team.</p>
-                </div>
-              </ScrollReveal>
-              <ScrollReveal delay={0.15}>
-                <div>
-                  <div className="sec-tag" style={{ marginBottom: 16 }}>Our Values</div>
-                  {[
-                    { title: 'Transparency First', desc: 'Every naira is tracked. Every investor has a legal contract. Independent audits before every payout.' },
-                    { title: 'Community Impact', desc: 'We employ local Kaduna farmers, support rural agriculture, and contribute to Nigeria\'s food security.' },
-                    { title: 'Excellence in Agriculture', desc: 'Our farm management team brings decades of experience in Kaduna State crop production.' },
-                    { title: 'Investor Protection', desc: 'Escrow-held capital. NAIC crop insurance. Legal agreements. Multiple layers of protection.' },
-                  ].map((v, i) => (
-                    <div key={i} style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
-                      <div style={{ width: 44, height: 44, borderRadius: 10, background: 'var(--cream)', border: '1px solid rgba(26,58,31,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>{v.icon}</div>
-                      <div>
-                        <div style={{ fontFamily: "'Barlow Condensed'", fontSize: 14, fontWeight: 800, letterSpacing: 1, color: 'var(--navy)', marginBottom: 4 }}>{v.title}</div>
-                        <div style={{ fontSize: 13, color: 'var(--text-mid)', lineHeight: 1.6 }}>{v.desc}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollReveal>
-            </div>
+       {/* Mission */}
+<section className="section about">
+  <div className="section-inner">
+
+    <div
+      className="about-grid"
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, 1fr)',
+        gap: 40,
+        alignItems: 'start',
+      }}
+    >
+
+      {/* LEFT - MISSION */}
+      <ScrollReveal>
+        <div
+          className="about-text"
+          style={{
+            textAlign: 'left',
+          }}
+        >
+          <div className="sec-tag" style={{ textAlign: 'left' }}>
+            Our Mission
           </div>
-        </section>
+
+          <h2 className="sec-title">
+            Democratizing <em>Agricultural Wealth</em>
+          </h2>
+
+          <p>
+            For generations, the wealth created by Nigerian farmland has been
+            concentrated in the hands of those who already own land. CIVORA FARMS changes that.
+          </p>
+
+          <p>
+            We believe that a civil servant in Kaduna, a student in Lagos, or a trader in Kano
+            should be able to invest in real, productive farmland and earn real returns.
+          </p>
+
+          <p>
+            Our technology platform makes this possible by pooling investor capital into managed farm units.
+          </p>
+        </div>
+      </ScrollReveal>
+
+      {/* RIGHT - VALUES */}
+      <ScrollReveal delay={0.15}>
+        <div style={{ textAlign: 'left' }}>
+          <div className="sec-tag" style={{ marginBottom: 16 }}>
+            Our Values
+          </div>
+
+          {[
+            {
+              title: 'Transparency First',
+              desc: 'Every naira is tracked. Every investor has a legal contract. Independent audits before every payout.'
+            },
+            {
+              title: 'Community Impact',
+              desc: 'We employ local Kaduna farmers, support rural agriculture, and contribute to Nigeria\'s food security.'
+            },
+            {
+              title: 'Excellence in Agriculture',
+              desc: 'Our farm management team brings decades of experience in Kaduna State crop production.'
+            },
+            {
+              title: 'Investor Protection',
+              desc: 'Escrow-held capital. NAIC crop insurance. Legal agreements. Multiple layers of protection.'
+            },
+          ].map((v, i) => (
+            <div
+              key={i}
+              style={{
+                display: 'flex',
+                gap: 16,
+                marginBottom: 20,
+                alignItems: 'flex-start',
+              }}
+            >
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 10,
+                  background: 'var(--cream)',
+                  border: '1px solid rgba(26,58,31,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 18,
+                  flexShrink: 0,
+                }}
+              >
+                {v.icon}
+              </div>
+
+              <div>
+                <div
+                  style={{
+                    fontFamily: "'Barlow Condensed'",
+                    fontSize: 14,
+                    fontWeight: 800,
+                    letterSpacing: 1,
+                    color: 'var(--navy)',
+                    marginBottom: 4,
+                  }}
+                >
+                  {v.title}
+                </div>
+
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: 'var(--text-mid)',
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {v.desc}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </ScrollReveal>
+
+    </div>
+  </div>
+
+  {/* RESPONSIVE FIX (IMPORTANT) */}
+  <style jsx>{`
+    @media (max-width: 768px) {
+      .about-grid {
+        grid-template-columns: 1fr !important;
+        text-align: center;
+      }
+
+      .about-text {
+        text-align: center !important;
+      }
+
+      .about-text p {
+        text-align: center;
+      }
+
+      .sec-tag {
+        text-align: center !important;
+      }
+    }
+  `}</style>
+</section>
 
         <Trust />
 

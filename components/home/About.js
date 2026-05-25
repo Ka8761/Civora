@@ -106,7 +106,7 @@ export default function About() {
                 style={{
                   fontSize: 16,
                   lineHeight: 1.9,
-                  color: '#444',
+                  color: '#ffffff',
                   marginBottom: 18,
                   fontFamily: 'Montserrat, sans-serif',
                 }}
@@ -117,7 +117,7 @@ export default function About() {
                   className="ellipsis"
                   style={{
                     fontSize: 30,
-                    color: '#888',
+                    color: '#ffffff',
                     marginBottom: 15,
                   }}
                 >
@@ -130,7 +130,7 @@ export default function About() {
                     style={{
                       fontSize: 16,
                       lineHeight: 1.9,
-                      color: '#444',
+                      color: '#ffffff',
                       marginBottom: 18,
                       fontFamily: 'Montserrat, sans-serif',
                     }}
