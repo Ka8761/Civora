@@ -24,7 +24,7 @@ export default function InvestmentsPage() {
   return (
     <>
       <Head>
-        <title>My Investments — CIVORA FARMS</title>
+        <title>My Investments  CIVORA FARMS</title>
       </Head>
 
       <style jsx>{`

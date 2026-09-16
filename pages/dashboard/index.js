@@ -1,507 +1,676 @@
-import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/router';
-import Head from 'next/head';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/layout/DashboardLayout';
-import StatsWidget from '../../components/dashboard/StatsWidget';
-import PortfolioChart from '../../components/dashboard/PortfolioChart';
-import ReturnsGraph from '../../components/dashboard/ReturnsGraph';
-import InvestmentCard from '../../components/dashboard/InvestmentCard';
 
-export default function Dashboard() {
+const MODULES = [
+  { l: 'CC Orientation', p: 12, lk: false },
+  { l: 'C2 New Birth', p: 0, lk: true },
+  { l: 'C3 Spiritual Milk', p: 0, lk: true },
+  { l: 'C4 Growing in Love', p: 0, lk: true },
+  { l: 'C5 Stewardship', p: 0, lk: true },
+  { l: 'C6 COLIG Cultures', p: 0, lk: true },
+];
+
+export default function DashboardHome() {
   const { data: session } = useSession();
-  const router = useRouter();
-
-  const [investments, setInvestments] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    if (router.query.success) {
-      toast.success('Investment confirmed! Welcome to your farm.', {
-        duration: 5000,
+    let mounted = true;
+
+    fetch('/api/user/progress')
+      .then((response) => response.json())
+      .then((data) => {
+        if (mounted) {
+          setUser(data.user || null);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setUser(null);
+        }
       });
-    }
-  }, [router.query]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [invRes, notifRes] = await Promise.all([
-          fetch('/api/investments'),
-          fetch('/api/notifications'),
-        ]);
-
-        const [invData, notifData] = await Promise.all([
-          invRes.json(),
-          notifRes.json(),
-        ]);
-
-        setInvestments(invData.investments || []);
-        setNotifications(notifData.notifications || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+    return () => {
+      mounted = false;
     };
-
-    fetchData();
   }, []);
 
-  const totalInvested = investments.reduce(
-    (sum, inv) => sum + (inv.amount || 0),
-    0
-  );
+  const firstName =
+    session?.user?.name?.split(' ')[0] || 'Student';
 
-  const totalProjected = investments.reduce(
-    (sum, inv) => sum + (inv.projectedReturn || inv.amount || 0),
-    0
-  );
+  const sermonsDone =
+    user?.completedSermons?.length ||
+    user?.completedLessons?.length ||
+    0;
 
-  const activeInvestments = investments.filter(
-    (inv) => inv.status === 'active'
-  ).length;
+  const lessonsDone =
+    user?.completedLessons?.length || 0;
 
-  const unreadNotifs = notifications.filter((n) => !n.read).length;
+  const prayerHours =
+    user?.prayerHoursLogged || 0;
 
-  const chartData = investments.map((inv) => ({
-    month: new Date(inv.startDate).toLocaleString('default', {
-      month: 'short',
-    }),
-    invested: totalInvested,
-    value: totalProjected,
-  }));
+  const overallProgress =
+    user?.overallProgress ?? 12;
 
   return (
-    <>
-      <Head>
-        <title>Dashboard — CIVORA FARMS</title>
-      </Head>
+    <DashboardLayout title="Dashboard">
+      <div className="dashboard-home">
 
-      <DashboardLayout
-        title={`Welcome back, ${
-          session?.user?.name?.split(' ')[0] || 'Investor'
-        }`}
-      >
-        {/* STATS */}
+        {/* Welcome Banner */}
+        <section className="wb">
+          <div className="wb-g" />
 
-        <div
-          className="dash-stats-grid"
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 16,
-            marginBottom: 28,
-          }}
-        >
-          <div
-            style={{
-              flex: '1 1 calc(50% - 8px)',
-              minWidth: 0,
-            }}
-          >
-            <StatsWidget
-              icon=""
-              label="TOTAL INVESTED"
-              value={`₦${totalInvested.toLocaleString()}`}
-              sub="Across all farms"
-              color="#0f2f1d"
-              delay={0}
-            />
-          </div>
-
-          <div
-            style={{
-              flex: '1 1 calc(50% - 8px)',
-              minWidth: 0,
-            }}
-          >
-            <StatsWidget
-              icon=""
-              label="PROJECTED VALUE"
-              value={`₦${totalProjected.toLocaleString()}`}
-              sub="At harvest"
-              color="#1f6b3b"
-              delay={0.1}
-            />
-          </div>
-
-          <div
-            style={{
-              flex: '1 1 calc(50% - 8px)',
-              minWidth: 0,
-            }}
-          >
-            <StatsWidget
-              icon=""
-              label="ACTIVE FARMS"
-              value={activeInvestments.toString()}
-              sub={`${investments.length} total investments`}
-              color="#0b1f14"
-              delay={0.2}
-            />
-          </div>
-
-          <div
-            style={{
-              flex: '1 1 calc(50% - 8px)',
-              minWidth: 0,
-            }}
-          >
-            <StatsWidget
-              icon=""
-              label="NOTIFICATIONS"
-              value={unreadNotifs.toString()}
-              sub="Unread messages"
-              color={unreadNotifs > 0 ? '#1f6b3b' : '#6f7a75'}
-              delay={0.3}
-            />
-          </div>
-        </div>
-
-        {/* PORTFOLIO + QUICK ACTIONS */}
-
-        <div
-          className="dash-two-col"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 20,
-            marginBottom: 28,
-          }}
-        >
-          <PortfolioChart data={chartData} />
-
-          <div
-            style={{
-              background: '#fff',
-              borderRadius: 12,
-              padding: '28px 24px',
-              border: '1px solid #e8ece9',
-            }}
-          >
-            <div
-              style={{
-                fontSize: 10,
-                letterSpacing: 3,
-                color: '#1f6b3b',
-                fontWeight: 700,
-                marginBottom: 4,
-              }}
-            >
-              QUICK ACTIONS
+          <div className="wb-content">
+            <div className="wb-eyebrow">
+              WELCOME BACK
             </div>
 
-            <div
-              style={{
-                fontSize: 18,
-                fontWeight: 800,
-                color: '#0b1f14',
-                marginBottom: 20,
-              }}
-            >
-              Grow Your Portfolio
-            </div>
+            <h1 className="wb-title">
+              Good to see you, {firstName}
+            </h1>
 
-            {[
-              {
-                href: '/invest',
-                label: 'Make New Investment',
-                desc: 'Browse available farm slots',
-              },
-              {
-                href: '/dashboard/investments',
-                label: 'View All Investments',
-                desc: 'Track your farm progress',
-              },
-              {
-                href: '/dashboard/settings',
-                label: 'Update Bank Details',
-                desc: 'Set payout account',
-              },
-              {
-                href: '/news',
-                label: 'Latest Farm News',
-                desc: 'Market insights and updates',
-              },
-            ].map((item, i) => (
-              <Link
-                key={i}
-                href={item.href}
-                style={{
-                  display: 'block',
-                  padding: '14px 0',
-                  borderBottom:
-                    i < 3 ? '1px solid #f0f2f0' : 'none',
-                  textDecoration: 'none',
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 800,
-                    color: '#0b1f14',
-                    marginBottom: 2,
-                  }}
-                >
-                  {item.label}
-                </div>
+            <p className="wb-subtitle">
+              You're on your discipleship journey. Keep pressing
+              forward — every lesson brings you closer to your
+              certificate.
+            </p>
 
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: '#6f7a75',
-                  }}
-                >
-                  {item.desc}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* RETURNS GRAPH */}
-
-        {investments.length > 0 && (
-          <div style={{ marginBottom: 28 }}>
-            <ReturnsGraph investments={investments} />
-          </div>
-        )}
-
-        {/* RECENT INVESTMENTS */}
-
-        <div style={{ marginBottom: 28 }}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: 16,
-              gap: 6,
-              flexWrap: 'wrap',
-            }}
-          >
-            <div
-              style={{
-                fontSize: 20,
-                fontWeight: 800,
-                color: '#0b1f14',
-              }}
-            >
-              Recent Investments
-            </div>
-
-            <Link
-              href="/dashboard/investments"
-              style={{
-                fontSize: 11,
-                fontWeight: 800,
-                letterSpacing: 2,
-                color: '#1f6b3b',
-                textDecoration: 'none',
-              }}
-            >
-              VIEW ALL →
+            <Link href="/dashboard/curriculum">
+              <button className="bs bs-g">
+                CONTINUE LEARNING →
+              </button>
             </Link>
           </div>
 
-          {loading ? (
-            <div
-              style={{
-                textAlign: 'center',
-                padding: 60,
-                color: '#6f7a75',
-              }}
-            >
-              Loading investments...
+          <div className="wb-b">
+            <div className="wb-bv">
+              {overallProgress}%
             </div>
-          ) : investments.length === 0 ? (
-            <div
-              style={{
-                background: '#fff',
-                borderRadius: 12,
-                padding: 60,
-                textAlign: 'center',
-                border: '1px solid #e8ece9',
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 18,
-                  fontWeight: 800,
-                  color: '#0b1f14',
-                  marginBottom: 10,
-                }}
-              >
-                No investments yet
+
+            <div className="wb-bl">
+              COMPLETED
+            </div>
+          </div>
+        </section>
+
+        {/* Statistics */}
+        <section className="g4">
+
+          <div className="sc">
+            <div className="sc-l">
+              CURRENT MODULE
+            </div>
+
+            <div className="sc-v module-name">
+              CC Orientation
+            </div>
+
+            <div className="sc-s">
+              Overview in progress
+            </div>
+          </div>
+
+          <div className="sc">
+            <div className="sc-l">
+              SERMONS HEARD
+            </div>
+
+            <div className="sc-v gold">
+              {sermonsDone}
+              <span>/61</span>
+            </div>
+
+            <div className="sc-s">
+              Complete all to unlock exam
+            </div>
+          </div>
+
+          <div className="sc">
+            <div className="sc-l">
+              PRAYER HOURS
+            </div>
+
+            <div className="sc-v purple">
+              {prayerHours}
+            </div>
+
+            <div className="sc-s">
+              of 12 required hours
+            </div>
+          </div>
+
+          <div className="sc">
+            <div className="sc-l">
+              CURRENT GRADE
+            </div>
+
+            <div className="sc-v green">
+              A
+            </div>
+
+            <div className="sc-s">
+              Knowledge check: 95%
+            </div>
+          </div>
+
+        </section>
+
+        {/* Progress + Quick Actions */}
+        <section className="g32">
+
+          {/* Module Progress */}
+          <div className="wc">
+            <div className="wch">
+              <div className="wct">
+                Module Progress
               </div>
 
-              <p
-                style={{
-                  fontSize: 14,
-                  color: '#6f7a75',
-                  marginBottom: 24,
-                }}
-              >
-                Make your first investment and start growing your
-                wealth with real farmland.
-              </p>
-
-              <Link
-                href="/invest"
-                style={{
-                  fontSize: 13,
-                  fontWeight: 800,
-                  letterSpacing: 2,
-                  color: '#fff',
-                  background: '#0f2f1d',
-                  padding: '14px 28px',
-                  borderRadius: 8,
-                  textDecoration: 'none',
-                }}
-              >
-                INVEST NOW →
-              </Link>
-            </div>
-          ) : (
-            <div
-              className="dash-card-grid"
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 16,
-              }}
-            >
-              {investments.slice(0, 2).map((inv, i) => (
-                <InvestmentCard
-                  key={inv._id}
-                  investment={inv}
-                  delay={i * 0.1}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* NOTIFICATIONS */}
-
-        {notifications.length > 0 && (
-          <div
-            style={{
-              background: '#fff',
-              borderRadius: 12,
-              border: '1px solid #e8ece9',
-              overflow: 'hidden',
-            }}
-          >
-            <div
-              style={{
-                padding: '20px 24px',
-                borderBottom: '1px solid #f0f2f0',
-                display: 'flex',
-                justifyContent: 'space-between',
-                gap: 6,
-                flexWrap: 'wrap',
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 18,
-                  fontWeight: 800,
-                  color: '#0b1f14',
-                }}
-              >
-                Recent Notifications
-              </div>
-
-              <Link
-                href="/dashboard/notifications"
-                style={{
-                  fontSize: 11,
-                  fontWeight: 800,
-                  letterSpacing: 2,
-                  color: '#1f6b3b',
-                  textDecoration: 'none',
-                }}
-              >
-                VIEW ALL →
-              </Link>
+              <span className="tag">
+                CC ORIENTATION
+              </span>
             </div>
 
-            {notifications.slice(0, 4).map((notif, i) => (
-              <div
-                key={notif._id}
-                style={{
-                  padding: '16px 24px',
-                  borderBottom:
-                    i < 3 ? '1px solid #f8faf8' : 'none',
-                  display: 'flex',
-                  gap: 14,
-                  alignItems: 'flex-start',
-                  background: notif.read ? '#fff' : '#f7fbf8',
-                }}
-              >
-                <div style={{ flex: 1 }}>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      fontWeight: 800,
-                      color: '#0b1f14',
-                      marginBottom: 2,
-                    }}
-                  >
-                    {notif.title}
+            <div className="wcb">
+
+              {MODULES.map((module, index) => (
+                <div
+                  key={index}
+                  className="module-row"
+                >
+                  <div className="module-top">
+                    <span
+                      className={
+                        module.lk
+                          ? 'module-label locked'
+                          : 'module-label'
+                      }
+                    >
+                      {module.l}
+                    </span>
+
+                    <span
+                      className={
+                        module.p > 0
+                          ? 'module-percent active'
+                          : 'module-percent'
+                      }
+                    >
+                      {module.p}%
+                    </span>
                   </div>
 
-                  <div
-                    style={{
-                      fontSize: 12,
-                      color: '#6f7a75',
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    {notif.message}
+                  <div className="pw">
+                    <div
+                      className="pf"
+                      style={{
+                        width: `${module.p}%`,
+                      }}
+                    />
                   </div>
                 </div>
+              ))}
 
-                {!notif.read && (
-                  <div
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: '50%',
-                      background: '#1f6b3b',
-                      flexShrink: 0,
-                      marginTop: 6,
-                    }}
-                  />
-                )}
-              </div>
-            ))}
+            </div>
           </div>
-        )}
 
-        {/* RESPONSIVE */}
+          {/* Quick Actions */}
+          <div className="wc">
 
-        <style jsx>{`
-          @media (max-width: 768px) {
-            .dash-stats-grid {
-              gap: 12px !important;
-            }
+            <div className="wch">
+              <div className="wct">
+                Quick Actions
+              </div>
+            </div>
 
-            .dash-two-col {
-              gap: 16px !important;
-            }
+            <div className="quick-actions">
 
-            .dash-card-grid {
-              gap: 14px !important;
-            }
+              <QuickAction
+                label="Continue Lesson"
+                sub="CC Overview"
+                href="/dashboard/curriculum"
+              />
+
+              <QuickAction
+                label="Sermon Project"
+                sub={`${sermonsDone}/61 complete`}
+                href="/dashboard/sermon-project"
+              />
+
+              <QuickAction
+                label="Log a Prayer"
+                sub="Add new request"
+                href="/dashboard/prayer-log"
+              />
+
+              <QuickAction
+                label="Write Testimony"
+                sub="Journal entry"
+                href="/dashboard/testimony-diary"
+              />
+
+            </div>
+
+          </div>
+
+        </section>
+
+        {/* Additional Progress */}
+        <section className="bottom-card">
+
+          <div>
+            <div className="bottom-eyebrow">
+              YOUR FOUNDATION
+            </div>
+
+            <h2>
+              Keep building your foundation.
+            </h2>
+
+            <p>
+              You have completed {lessonsDone} lessons so far.
+              Continue through the curriculum and complete each
+              requirement to progress toward your certificate.
+            </p>
+          </div>
+
+          <Link href="/dashboard/curriculum">
+            <button className="outline-button">
+              VIEW CURRICULUM
+            </button>
+          </Link>
+
+        </section>
+
+      </div>
+
+      <style jsx>{`
+        .dashboard-home {
+          width: 100%;
+          font-family: 'Montserrat', sans-serif;
+          color: #111827;
+        }
+
+        .wb {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 30px;
+          padding: 28px 30px;
+          margin-bottom: 20px;
+          overflow: hidden;
+          background: #ffffff;
+          border: 1px solid #e7e7e7;
+          border-radius: 16px;
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+        }
+
+        .wb-g {
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 5px;
+          background: #c9921a;
+        }
+
+        .wb-content {
+          position: relative;
+          z-index: 1;
+          max-width: 760px;
+        }
+
+        .wb-eyebrow {
+          margin-bottom: 8px;
+          color: #c9921a;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 3px;
+        }
+
+        .wb-title {
+          margin: 0;
+          color: #0a1628;
+          font-size: 25px;
+          line-height: 1.3;
+          font-weight: 700;
+        }
+
+        .wb-subtitle {
+          max-width: 650px;
+          margin: 9px 0 0;
+          color: #707070;
+          font-size: 13px;
+          line-height: 1.7;
+          font-weight: 400;
+        }
+
+        .wb-b {
+          min-width: 100px;
+          text-align: center;
+        }
+
+        .wb-bv {
+          color: #0a1628;
+          font-size: 30px;
+          line-height: 1;
+          font-weight: 800;
+        }
+
+        .wb-bl {
+          margin-top: 6px;
+          color: #999;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 2px;
+        }
+
+        .bs {
+          border: 0;
+          border-radius: 7px;
+          padding: 12px 17px;
+          margin-top: 14px;
+          cursor: pointer;
+          font-family: 'Montserrat', sans-serif;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.8px;
+        }
+
+        .bs-g {
+          background: #0a1628;
+          color: #ffffff;
+        }
+
+        .g4 {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 14px;
+          margin-bottom: 20px;
+        }
+
+        .sc {
+          min-height: 145px;
+          padding: 18px;
+          background: #ffffff;
+          border: 1px solid #e7e7e7;
+          border-radius: 14px;
+          box-shadow: 0 6px 22px rgba(0, 0, 0, 0.03);
+        }
+
+        .sc-l {
+          color: #8a8a8a;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 1.7px;
+        }
+
+        .sc-v {
+          margin-top: 7px;
+          color: #0a1628;
+          font-size: 25px;
+          font-weight: 800;
+        }
+
+        .module-name {
+          font-size: 15px;
+          letter-spacing: 0.5px;
+        }
+
+        .sc-v span {
+          color: #aaa;
+          font-size: 14px;
+          font-weight: 500;
+        }
+
+        .gold {
+          color: #c9921a;
+        }
+
+        .purple {
+          color: #7652a5;
+        }
+
+        .green {
+          color: #39884a;
+        }
+
+        .sc-s {
+          margin-top: 5px;
+          color: #999;
+          font-size: 10px;
+        }
+
+        .g32 {
+          display: grid;
+          grid-template-columns: 1.3fr 1fr;
+          gap: 20px;
+          margin-bottom: 20px;
+        }
+
+        .wc {
+          overflow: hidden;
+          background: #ffffff;
+          border: 1px solid #e7e7e7;
+          border-radius: 14px;
+          box-shadow: 0 6px 22px rgba(0, 0, 0, 0.03);
+        }
+
+        .wch {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 15px;
+          padding: 16px 18px;
+          border-bottom: 1px solid #eeeeee;
+        }
+
+        .wct {
+          color: #0a1628;
+          font-size: 13px;
+          font-weight: 700;
+        }
+
+        .tag {
+          padding: 5px 8px;
+          border-radius: 5px;
+          background: #f5f0df;
+          color: #9a7318;
+          font-size: 8px;
+          font-weight: 700;
+          letter-spacing: 1px;
+        }
+
+        .wcb {
+          padding: 18px;
+        }
+
+        .module-row {
+          margin-bottom: 16px;
+        }
+
+        .module-row:last-child {
+          margin-bottom: 0;
+        }
+
+        .module-top {
+          display: flex;
+          justify-content: space-between;
+          gap: 15px;
+          margin-bottom: 7px;
+        }
+
+        .module-label {
+          color: #0a1628;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+        }
+
+        .module-label.locked {
+          color: #c8c8c8;
+        }
+
+        .module-percent {
+          color: #c9c9c9;
+          font-size: 10px;
+          font-weight: 700;
+        }
+
+        .module-percent.active {
+          color: #39884a;
+        }
+
+        .pw {
+          height: 5px;
+          overflow: hidden;
+          border-radius: 20px;
+          background: #eeeeee;
+        }
+
+        .pf {
+          height: 100%;
+          border-radius: 20px;
+          background: #c9921a;
+        }
+
+        .quick-actions {
+          padding: 8px 10px;
+        }
+
+        .quick-action {
+          display: flex;
+          align-items: center;
+          gap: 11px;
+          padding: 11px 9px;
+          text-decoration: none;
+          border-bottom: 1px solid #f1f1f1;
+          transition: background 0.15s ease;
+        }
+
+        .quick-action:last-child {
+          border-bottom: none;
+        }
+
+        .quick-action:hover {
+          background: #faf9f4;
+        }
+
+        .qa-label {
+          color: #0a1628;
+          font-size: 11px;
+          font-weight: 700;
+        }
+
+        .qa-sub {
+          margin-top: 3px;
+          color: #999;
+          font-size: 9px;
+        }
+
+        .bottom-card {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 25px;
+          padding: 25px;
+          background: #ffffff;
+          border: 1px solid #e7e7e7;
+          border-radius: 14px;
+        }
+
+        .bottom-eyebrow {
+          margin-bottom: 7px;
+          color: #c9921a;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 2px;
+        }
+
+        .bottom-card h2 {
+          margin: 0;
+          color: #0a1628;
+          font-size: 18px;
+        }
+
+        .bottom-card p {
+          max-width: 650px;
+          margin: 7px 0 0;
+          color: #777;
+          font-size: 11px;
+          line-height: 1.7;
+        }
+
+        .outline-button {
+          flex-shrink: 0;
+          padding: 11px 15px;
+          border: 1px solid #0a1628;
+          border-radius: 7px;
+          background: transparent;
+          color: #0a1628;
+          cursor: pointer;
+          font-family: 'Montserrat', sans-serif;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 1px;
+        }
+
+        @media (max-width: 1000px) {
+          .g4 {
+            grid-template-columns: repeat(2, 1fr);
           }
-        `}</style>
-      </DashboardLayout>
-    </>
+
+          .g32 {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 650px) {
+          .wb {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 23px 20px;
+          }
+
+          .wb-b {
+            text-align: left;
+          }
+
+          .g4 {
+            grid-template-columns: 1fr;
+          }
+
+          .bottom-card {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          .wb-title {
+            font-size: 21px;
+          }
+        }
+      `}</style>
+    </DashboardLayout>
+  );
+}
+
+function QuickAction({ label, sub, href }) {
+  return (
+    <Link
+      href={href}
+      className="quick-action"
+    >
+      <div>
+        <div className="qa-label">
+          {label}
+        </div>
+
+        <div className="qa-sub">
+          {sub}
+        </div>
+      </div>
+    </Link>
   );
 }

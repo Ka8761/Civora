@@ -9,21 +9,24 @@ const UserSchema = new mongoose.Schema(
     image: { type: String, default: '' },
     phone: { type: String, default: '' },
     state: { type: String, default: '' },
-    role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    role: { type: String, enum: ['student', 'admin'], default: 'student' },
     provider: { type: String, default: 'credentials' },
-    emailVerified: { type: Boolean, default: false },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
-    // Investment settings
-    bankName: { type: String, default: '' },
-    bankAccountNumber: { type: String, default: '' },
-    bankAccountName: { type: String, default: '' },
-    // Notification preferences
-    emailNotifications: { type: Boolean, default: true },
-    whatsappNotifications: { type: Boolean, default: true },
-    // Stats
-    totalInvested: { type: Number, default: 0 },
-    totalReturns: { type: Number, default: 0 },
+    // Progress tracking
+    currentModule: { type: String, default: 'orientation' },
+  completedModules: {
+  type: [String],
+  default: [],
+},
+
+completedLessons: {
+  type: [String],
+  default: [],
+},
+    sermonsCompleted: { type: Number, default: 0 },
+    overallProgress: { type: Number, default: 0 },
+    certificateIssued: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
@@ -34,8 +37,8 @@ UserSchema.pre('save', async function (next) {
   next();
 });
 
-UserSchema.methods.comparePassword = async function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
+UserSchema.methods.comparePassword = async function (candidate) {
+  return bcrypt.compare(candidate, this.password);
 };
 
 export default mongoose.models.User || mongoose.model('User', UserSchema);

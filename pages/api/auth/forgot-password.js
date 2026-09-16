@@ -1,14 +1,14 @@
-
 import connectDB from '../../../lib/mongodb';
 import User from '../../../models/User';
-import { generateToken, sendPasswordResetEmail } from '../../../lib/auth';
+import { generateToken } from '../../../lib/auth';
+import { sendPasswordResetEmail } from '../../../lib/email';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
   await connectDB();
 
   const { email } = req.body;
-  if (!email) return res.status(400).json({ error: 'Email is required' });
+  if (!email) return res.status(400).json({ error: 'Email is required.' });
 
   const user = await User.findOne({ email: email.toLowerCase() });
 
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     await sendPasswordResetEmail(user.email, token, user.name);
   } catch (err) {
     console.error('Email failed:', err);
-    return res.status(500).json({ error: 'Failed to send email. Please try again.' });
+    return res.status(500).json({ error: 'Failed to send reset email. Please try again.' });
   }
 
   return res.status(200).json({ success: true });

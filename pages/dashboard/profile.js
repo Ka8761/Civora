@@ -10,132 +10,74 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch('/api/user/profile')
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.user) setForm({ name: d.user.name || '', phone: d.user.phone || '', state: d.user.state || '' });
-      });
+    fetch('/api/user/progress').then(r => r.json()).then(d => {
+      if (d.user) setForm({ name: d.user.name || '', phone: d.user.phone || '', state: d.user.state || '' });
+    });
   }, []);
 
-  const handleSave = async () => {
+  async function save(e) {
+    e.preventDefault();
     setLoading(true);
-    try {
-      const res = await fetch('/api/user/profile', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      toast.success('Profile updated!');
-    } catch (err) {
-      toast.error('Update failed');
-    } finally {
-      setLoading(false);
-    }
-  };
+    await fetch('/api/user/progress', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    });
+    setLoading(false);
+    toast.success('✅ Profile updated!');
+  }
 
   return (
-    <>
-      <Head>
-        <title>Profile — CIVORA FARMS</title>
-      </Head>
-
-      <DashboardLayout title="My Profile">
-        <div style={{ maxWidth: 600 }}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 32, border: '1px solid #e8ece9', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
-            <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#0b1f14', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, fontWeight: 800, color: '#fff', flexShrink: 0 }}>
-              {session?.user?.name?.charAt(0).toUpperCase()}
-            </div>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: '#0b1f14' }}>{session?.user?.name}</div>
-              <div style={{ fontSize: 13, color: '#6f7a75', marginTop: 4, wordBreak: 'break-word' }}>{session?.user?.email}</div>
-              <div style={{ fontSize: 10, letterSpacing: 3, color: '#1f6b3b', marginTop: 8, fontWeight: 700 }}>
-                CIVORA INVESTOR
+    <DashboardLayout title="Profile">
+      <div style={{ maxWidth: 580 }}>
+        {/* Avatar card */}
+        <div className="wc" style={{ marginBottom: 16 }}>
+          <div className="wcb">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+              <div style={{ width: 70, height: 70, borderRadius: '50%', background: 'var(--navy)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 900, color: 'var(--gold)', flexShrink: 0 }}>
+                {session?.user?.name?.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <div style={{ fontFamily: "'Playfair Display'", fontSize: 20, fontWeight: 700, color: 'var(--navy)' }}>{session?.user?.name}</div>
+                <div style={{ fontSize: 13, color: '#9a9a9a', marginTop: 3 }}>{session?.user?.email}</div>
+                <div style={{ fontFamily: "'Barlow Condensed'", fontSize: 9, letterSpacing: 3, color: 'var(--gold)', marginTop: 7, fontWeight: 700 }}>FOUNDATION STUDENT · CC ORIENTATION</div>
               </div>
             </div>
-          </div>
-
-          <div style={{ background: '#fff', borderRadius: 12, padding: 32, border: '1px solid #e8ece9' }}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#0b1f14', marginBottom: 24 }}>
-              Edit Profile
-            </div>
-
-            {[
-              { label: 'Full Name', key: 'name', type: 'text', placeholder: 'Your full name' },
-              { label: 'Phone / WhatsApp', key: 'phone', type: 'tel', placeholder: '+234 000 000 0000' },
-              { label: 'State of Residence', key: 'state', type: 'text', placeholder: 'e.g. Kaduna' },
-            ].map((f) => (
-              <div key={f.key} className="form-group">
-                <label className="form-label" style={{ display: 'block', fontSize: 12, fontWeight: 700, letterSpacing: 1, color: '#0b1f14', marginBottom: 8 }}>
-                  {f.label}
-                </label>
-                <input
-                  className="form-input"
-                  type={f.type}
-                  value={form[f.key]}
-                  onChange={(e) => setForm((p) => ({ ...p, [f.key]: e.target.value }))}
-                  placeholder={f.placeholder}
-                  style={{
-                    width: '100%',
-                    border: '1px solid #dfe5e1',
-                    borderRadius: 10,
-                    padding: '14px 16px',
-                    marginBottom: 18,
-                    fontFamily: 'Montserrat, sans-serif',
-                    outline: 'none',
-                  }}
-                />
-              </div>
-            ))}
-
-            <div className="form-group">
-              <label className="form-label" style={{ display: 'block', fontSize: 12, fontWeight: 700, letterSpacing: 1, color: '#0b1f14', marginBottom: 8 }}>
-                Email Address
-              </label>
-              <input
-                className="form-input"
-                type="email"
-                value={session?.user?.email || ''}
-                disabled
-                style={{
-                  width: '100%',
-                  border: '1px solid #dfe5e1',
-                  borderRadius: 10,
-                  padding: '14px 16px',
-                  marginBottom: 8,
-                  fontFamily: 'Montserrat, sans-serif',
-                  opacity: 0.6,
-                  cursor: 'not-allowed',
-                  background: '#f7f9f8',
-                }}
-              />
-              <div style={{ fontSize: 12, color: '#6f7a75', marginBottom: 20 }}>
-                Email cannot be changed. Contact support if needed.
-              </div>
-            </div>
-
-            <button
-              onClick={handleSave}
-              disabled={loading}
-              style={{
-                padding: '13px 32px',
-                background: loading ? '#6a776f' : '#0f2f1d',
-                color: '#fff',
-                fontFamily: 'Montserrat, sans-serif',
-                fontSize: 13,
-                fontWeight: 800,
-                letterSpacing: 3,
-                border: 'none',
-                borderRadius: 8,
-                cursor: loading ? 'default' : 'pointer',
-              }}
-            >
-              {loading ? 'SAVING...' : 'SAVE CHANGES'}
-            </button>
           </div>
         </div>
-      </DashboardLayout>
-    </>
+
+        {/* Edit form */}
+        <div className="wc">
+          <div className="wch"><div className="wct">Edit Profile</div></div>
+          <div className="wcb">
+            <form onSubmit={save}>
+              <label className="sc-l" style={{ display: 'block', marginBottom: 6 }}>FULL NAME</label>
+              <input className="fi" type="text" required
+                style={{ background: '#fafaf8', borderColor: '#e0e0e0', color: 'var(--txt)', marginBottom: 13 }}
+                value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
+
+              <label className="sc-l" style={{ display: 'block', marginBottom: 6 }}>EMAIL ADDRESS</label>
+              <input className="fi" type="email" disabled value={session?.user?.email || ''}
+                style={{ background: '#f5f5f5', borderColor: '#e0e0e0', marginBottom: 4 }} />
+              <div style={{ fontSize: 11, color: '#9a9a9a', fontStyle: 'italic', marginBottom: 13 }}>Email cannot be changed. Contact support if needed.</div>
+
+              <label className="sc-l" style={{ display: 'block', marginBottom: 6 }}>PHONE NUMBER</label>
+              <input className="fi" type="tel" placeholder="+234 000 000 0000"
+                style={{ background: '#fafaf8', borderColor: '#e0e0e0', color: 'var(--txt)', marginBottom: 13 }}
+                value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} />
+
+              <label className="sc-l" style={{ display: 'block', marginBottom: 6 }}>STATE / LOCATION</label>
+              <input className="fi" type="text" placeholder="e.g. Lagos, Nigeria"
+                style={{ background: '#fafaf8', borderColor: '#e0e0e0', color: 'var(--txt)', marginBottom: 16 }}
+                value={form.state} onChange={e => setForm(p => ({ ...p, state: e.target.value }))} />
+
+              <button type="submit" className="bs bs-g" disabled={loading}>
+                {loading ? 'SAVING…' : 'SAVE CHANGES'}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </DashboardLayout>
   );
 }

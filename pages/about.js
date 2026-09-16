@@ -8,7 +8,7 @@ import Trust from '../components/home/Trust';
 export default function AboutPage() {
   return (
     <>
-      <title>About Us — CIVORA FARMS</title>
+      <title>COLIG Leadership Foundation School</title>
 
       <Navbar />
 

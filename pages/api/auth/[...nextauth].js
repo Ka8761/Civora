@@ -1,4 +1,3 @@
-
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
@@ -44,7 +43,6 @@ export const authOptions = {
             email: user.email,
             image: user.image,
             provider: 'google',
-            emailVerified: true,
           });
         }
       }
@@ -57,7 +55,6 @@ export const authOptions = {
         if (dbUser) {
           token.id = dbUser._id.toString();
           token.role = dbUser.role;
-          token.phone = dbUser.phone;
         }
       }
       return token;
@@ -66,7 +63,6 @@ export const authOptions = {
       if (token) {
         session.user.id = token.id;
         session.user.role = token.role;
-        session.user.phone = token.phone;
       }
       return session;
     },

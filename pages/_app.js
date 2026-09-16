@@ -1,17 +1,6 @@
 import { SessionProvider } from 'next-auth/react';
 import { Toaster } from 'react-hot-toast';
 import '../styles/globals.css';
-import { Montserrat } from 'next/font/google';
-import '@fontsource/montserrat/400.css';
-import '@fontsource/montserrat/500.css';
-import '@fontsource/montserrat/600.css';
-import '@fontsource/montserrat/700.css';
-
-import '../styles/globals.css';
-const montserrat = Montserrat({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
-});
 
 export default function App({ Component, pageProps: { session, ...pageProps } }) {
   return (
@@ -24,6 +13,8 @@ export default function App({ Component, pageProps: { session, ...pageProps } })
             background: '#112240',
             color: '#fff',
             border: '1px solid rgba(201,146,26,0.3)',
+            fontFamily: "'Barlow Condensed', sans-serif",
+            letterSpacing: '1px',
           },
           success: { iconTheme: { primary: '#4caf50', secondary: '#fff' } },
           error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },

@@ -1,3 +1,4 @@
+
 import { Html, Head, Main, NextScript } from 'next/document';
 
 export default function Document() {
@@ -7,10 +8,10 @@ export default function Document() {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Barlow+Condensed:wght@200;300;400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Barlow+Condensed:wght@200;300;400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap"
           rel="stylesheet"
         />
-        <meta name="description" content="CIVORA FARMS — Kaduna Agricultural Investment Platform" />
+        <meta name="description" content="COLIG Leadership Foundation School — Rooted in the Word. Rising in Leadership." />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <body>

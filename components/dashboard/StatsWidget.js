@@ -1,30 +1,84 @@
 import { motion } from 'framer-motion';
 
-export default function StatsWidget({ icon, label, value, sub, color = 'var(--gold)', delay = 0 }) {
+export default function StatsWidget({
+  icon,
+  label,
+  value,
+  sub,
+  color = '#c9921a',
+  delay = 0,
+}) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay }}
-      style={{
-        background: '#fff', borderRadius: 12, padding: '24px 20px',
-        border: '1px solid #e8e8e8', transition: 'border-color 0.2s, box-shadow 0.2s',
+      initial={{
+        opacity: 0,
+        y: 20,
       }}
-      whileHover={{ borderColor: color, boxShadow: `0 4px 20px ${color}20` }}
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+      transition={{
+        duration: 0.5,
+        delay,
+      }}
+      whileHover={{
+        y: -3,
+      }}
+      style={{
+        background: 'rgba(255,255,255,0.035)',
+        border: '1px solid rgba(255,255,255,0.07)',
+        borderRadius: 12,
+        padding: '22px 20px',
+        backdropFilter: 'blur(15px)',
+      }}
     >
-      <div style={{ fontSize: 28, marginBottom: 10 }}>{icon}</div>
-      <div style={{ fontFamily: "'Barlow Condensed'", fontSize: 10, letterSpacing: 3, color: '#9a9a9a', fontWeight: 700, marginBottom: 6 }}>
+      <div
+        style={{
+          fontSize: 25,
+          marginBottom: 12,
+        }}
+      >
+        {icon}
+      </div>
+
+      <div
+        style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontSize: 10,
+          letterSpacing: 2.5,
+          color: 'rgba(255,255,255,0.4)',
+          fontWeight: 700,
+          marginBottom: 7,
+        }}
+      >
         {label}
       </div>
-      <div style={{ fontFamily: "'Playfair Display'", fontSize: 28, fontWeight: 900, color, lineHeight: 1 }}>
+
+      <div
+        style={{
+          fontFamily: "'Playfair Display', serif",
+          fontSize: 27,
+          fontWeight: 800,
+          color,
+        }}
+      >
         {value}
       </div>
+
       {sub && (
-        <div style={{ fontFamily: "'Barlow Condensed'", fontSize: 11, color: '#9a9a9a', marginTop: 6, letterSpacing: 1 }}>
+        <div
+          style={{
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontSize: 11,
+            color: 'rgba(255,255,255,0.35)',
+            marginTop: 6,
+            letterSpacing: 1,
+          }}
+        >
           {sub}
         </div>
       )}
     </motion.div>
   );
 }
-

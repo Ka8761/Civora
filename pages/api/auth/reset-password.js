@@ -6,15 +6,21 @@ export default async function handler(req, res) {
   await connectDB();
 
   const { token, password } = req.body;
-  if (!token || !password) return res.status(400).json({ error: 'Token and password are required' });
-  if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  if (!token || !password) {
+    return res.status(400).json({ error: 'Token and password are required.' });
+  }
+  if (password.length < 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+  }
 
   const user = await User.findOne({
     resetPasswordToken: token,
     resetPasswordExpires: { $gt: new Date() },
   });
 
-  if (!user) return res.status(400).json({ error: 'Invalid or expired reset token' });
+  if (!user) {
+    return res.status(400).json({ error: 'Invalid or expired reset token.' });
+  }
 
   user.password = password;
   user.resetPasswordToken = undefined;
@@ -23,3 +29,4 @@ export default async function handler(req, res) {
 
   return res.status(200).json({ success: true });
 }
+

@@ -1,372 +1,220 @@
-import { useState } from 'react';
+import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useSession, signOut } from 'next-auth/react';
-import { motion } from 'framer-motion';
-import SupportButton from '../ui/SupportButton';
+import { signOut } from 'next-auth/react';
 
-const navItems = [
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/dashboard/investments', label: 'My Investments' },
-  { href: '/dashboard/notifications', label: 'Notifications' },
-  { href: '/dashboard/profile', label: 'Profile' },
-  { href: '/dashboard/settings', label: 'Settings' },
+const NAV_ITEMS = [
+  { label: 'HOME',            href: '/dashboard' },
+  { label: 'PROFILE',         href: '/dashboard/profile' },
+  { label: 'CURRICULUM MAP',  href: '/dashboard/curriculum' },
+  { label: 'SERMON PROJECT',  href: '/dashboard/sermon' },
+  { label: 'PRAYER LOG',      href: '/dashboard/prayer' },
+  { label: 'TESTIMONY DIARY', href: '/dashboard/testimony' },
+  { label: 'GRADES',          href: '/dashboard/grades' },
+  { label: 'ACCOMPLISHMENT',  href: '/dashboard/accomplishment' },
+  { label: 'JOIN COMMUNITY',  href: '/dashboard/community' },
 ];
 
-export default function DashboardLayout({ children, title }) {
+export default function DashboardLayout({ title, children }) {
   const router = useRouter();
-  const { data: session } = useSession();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  function isActive(href) {
+    if (href === '/dashboard') return router.pathname === '/dashboard';
+    return router.pathname.startsWith(href);
+  }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f6f8f7', fontFamily: 'Montserrat, sans-serif' }}>
-      <style jsx>{`
-        @media (max-width: 900px) {
-          .dash-sidebar {
-            transform: translateX(-100%);
-            transition: transform 0.25s ease;
-            width: 280px !important;
-          }
+    <>
+      <Head>
+        <title>{title ? `${title} · COLIG Foundation` : 'COLIG Foundation'}</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet"
+        />
+      </Head>
 
-          .dash-sidebar.open {
-            transform: translateX(0);
-          }
+      <div className="dl-shell">
+        <aside className="dl-side">
+          <div className="dl-brand">
+            <div className="dl-brand-name">COLIG</div>
+            <div className="dl-brand-sub">Leadership Foundation School</div>
+          </div>
 
-          .dash-main {
-            margin-left: 0 !important;
-            padding: 20px !important;
-          }
+          <nav className="dl-nav">
+            {NAV_ITEMS.map((item) => (
+              <Link key={item.href} href={item.href} legacyBehavior>
+                <a className={`dl-nav-item${isActive(item.href) ? ' dl-nav-item-active' : ''}`}>
+                  {item.label}
+                </a>
+              </Link>
+            ))}
+          </nav>
 
-          .dash-topbar {
-            flex-direction: column;
-            align-items: flex-start !important;
-            gap: 16px;
-          }
+          <button className="dl-signout" onClick={() => signOut({ callbackUrl: '/' })}>
+            SIGN OUT
+          </button>
+        </aside>
 
-          .dash-stats-grid {
-            grid-template-columns: 1fr !important;
-          }
+        <main className="dl-main">
+          {title && <h1 className="dl-title">{title}</h1>}
+          <div className="dl-content">{children}</div>
+        </main>
+      </div>
 
-          .dash-two-col {
-            grid-template-columns: 1fr !important;
-          }
-
-          .dash-card-grid {
-            grid-template-columns: 1fr !important;
-          }
-
-          .sidebar-toggle {
-            display: flex !important;
-          }
-
-          .mobile-backdrop {
-            display: block !important;
-          }
+      <style jsx global>{`
+        :root {
+          --navy: #0a1628;
+          --gold: #c9921a;
+          --gold-light: #e8b84b;
+          --cream: #faf8f3;
+          --txt: #1a1a2e;
+          --mid: #4a5568;
+          --gb: #4caf50;
+          --pl: #9333ea;
         }
-
-        @media (min-width: 901px) {
-          .mobile-backdrop {
-            display: none !important;
-          }
-        }
-
-        @media (max-width: 520px) {
-          .dash-main {
-            padding: 16px !important;
-          }
-
-          .dash-title {
-            font-size: 22px !important;
-          }
+        body,
+        button,
+        input,
+        textarea,
+        select {
+          font-family: 'Montserrat', sans-serif !important;
         }
       `}</style>
 
-      <button
-  className="sidebar-toggle"
-  onClick={() => setSidebarOpen(true)}
-  style={{
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 4,
-    position: 'fixed',
-    top: 16,
-    right: 16,
-    zIndex: 80,
-    background: '#0f2f1d',
-    border: 'none',
-    borderRadius: 10,
-    padding: '12px',
-    cursor: 'pointer',
-    width: 48,
-    height: 48,
-  }}
->
-  <span
-    style={{
-      width: 22,
-      height: 2,
-      background: '#fff',
-      borderRadius: 2,
-    }}
-  />
-  <span
-    style={{
-      width: 22,
-      height: 2,
-      background: '#fff',
-      borderRadius: 2,
-    }}
-  />
-  <span
-    style={{
-      width: 22,
-      height: 2,
-      background: '#fff',
-      borderRadius: 2,
-    }}
-  />
-</button>
+      <style jsx>{`
+        .dl-shell {
+          display: flex;
+          min-height: 100vh;
+          background: var(--cream);
+        }
 
-      {sidebarOpen && (
-        <div
-          className="mobile-backdrop"
-          onClick={() => setSidebarOpen(false)}
-          style={{
-            display: 'none',
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.45)',
-            zIndex: 40,
-          }}
-        />
-      )}
+        .dl-side {
+          width: 240px;
+          flex-shrink: 0;
+          background: var(--navy);
+          display: flex;
+          flex-direction: column;
+          position: sticky;
+          top: 0;
+          height: 100vh;
+        }
 
-      <aside
-        className={`dash-sidebar ${sidebarOpen ? 'open' : ''}`}
-        style={{
-          background: '#0b1f14',
-          width: 260,
-          minHeight: '100vh',
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          zIndex: 50,
-          display: 'flex',
-          flexDirection: 'column',
-          color: '#fff',
-        }}
-      >
-        <div style={{ padding: '28px 24px', marginTop: 16, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-          <Link href="/" style={{ textDecoration: 'none' }}>
-            <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: 3, color: '#ffffff' }}>CIVORA FARMS</div>
-            <div style={{ fontSize: 9, letterSpacing: 3, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
-              INVESTOR PORTAL
-            </div>
-          </Link>
-        </div>
+        .dl-brand {
+          padding: 28px 24px 22px;
+          border-bottom: 1px solid rgba(201, 146, 26, 0.16);
+        }
+        .dl-brand-name {
+          font-size: 18px;
+          font-weight: 800;
+          letter-spacing: 2px;
+          color: #fff;
+        }
+        .dl-brand-sub {
+          font-size: 10px;
+          letter-spacing: 1px;
+          color: rgba(255, 255, 255, 0.35);
+          margin-top: 4px;
+        }
 
-        {session && (
-          <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#1f6b3b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 16, color: '#fff', flexShrink: 0 }}>
-                {session.user.name?.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', letterSpacing: 1 }}>
-                  {session.user.name}
-                </div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', marginTop: 2, wordBreak: 'break-word' }}>
-                  {session.user.email}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        .dl-nav {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          padding: 14px 0;
+          overflow-y: auto;
+        }
 
-        <nav style={{ flex: 1, padding: '16px 12px', overflowY: 'auto' }}>
-          {navItems.map((item) => {
-            const active = router.pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setSidebarOpen(false)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  padding: '12px 14px',
-                  borderRadius: 10,
-                  marginBottom: 6,
-                  textDecoration: 'none',
-                  background: active ? 'rgba(31,107,59,0.18)' : 'transparent',
-                  border: active ? '1px solid rgba(31,107,59,0.35)' : '1px solid transparent',
-                  transition: 'all 0.15s',
-                }}
-              >
-                <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: 1, color: active ? '#7ee2a4' : 'rgba(255,255,255,0.78)' }}>
-                  {item.label}
-                </span>
-              </Link>
-            );
-          })}
+        .dl-nav-item {
+          display: block;
+          text-decoration: none;
+          font-size: 12px;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+          color: rgba(255, 255, 255, 0.55);
+          padding: 13px 24px;
+          border-left: 3px solid transparent;
+          transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+        .dl-nav-item:hover {
+          background: rgba(255, 255, 255, 0.04);
+          color: #fff;
+        }
+        .dl-nav-item-active {
+          background: rgba(201, 146, 26, 0.1);
+          border-left-color: var(--gold);
+          color: var(--gold);
+        }
 
-          {session?.user?.role === 'admin' && (
-            <>
-              <div style={{ margin: '18px 0 10px 14px', fontSize: 10, letterSpacing: 3, color: 'rgba(255,255,255,0.35)', fontWeight: 700 }}>
-                ADMIN
-              </div>
-              {[
-                { href: '/admin', label: 'Admin Dashboard' },
-                { href: '/admin/users', label: 'Manage Users' },
-                { href: '/admin/investments', label: 'Investments' },
-              ].map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setSidebarOpen(false)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    padding: '10px 14px',
-                    borderRadius: 10,
-                    marginBottom: 6,
-                    textDecoration: 'none',
-                  }}
-                >
-                  <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1, color: 'rgba(255,255,255,0.65)' }}>
-                    {item.label}
-                  </span>
-                </Link>
-              ))}
-            </>
-          )}
-        </nav>
+        .dl-signout {
+          margin: 16px 20px 24px;
+          padding: 11px;
+          background: transparent;
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          border-radius: 6px;
+          color: rgba(255, 255, 255, 0.6);
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 1.5px;
+          cursor: pointer;
+          transition: all 0.15s;
+        }
+        .dl-signout:hover {
+          border-color: var(--gold);
+          color: var(--gold);
+        }
 
-        <div style={{ padding: '16px 12px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-          <Link
-            href="/"
-            onClick={() => setSidebarOpen(false)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              padding: '10px 14px',
-              textDecoration: 'none',
-              borderRadius: 10,
-              marginBottom: 6,
-            }}
-          >
-            <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1, color: 'rgba(255,255,255,0.7)' }}>
-              Back to Site
-            </span>
-          </Link>
+        .dl-main {
+          flex: 1;
+          padding: 36px 44px;
+          max-width: 1160px;
+        }
 
-          <button
-            onClick={() => signOut({ callbackUrl: '/' })}
-            style={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              padding: '10px 14px',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              borderRadius: 10,
-              fontFamily: 'Montserrat, sans-serif',
-            }}
-          >
-            <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1, color: '#ff8a8a' }}>
-              Sign Out
-            </span>
-          </button>
-        </div>
-      </aside>
+        .dl-title {
+          font-size: 22px;
+          font-weight: 700;
+          color: var(--navy);
+          margin-bottom: 22px;
+        }
 
-      <main
-        className="dash-main"
-        style={{
-          marginLeft: 260,
-          flex: 1,
-          padding: '32px',
-          minHeight: '100vh',
-        }}
-      >
-        <div
-          className="dash-topbar"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 32,
-            gap: 16,
-          }}
-        >
-          <div>
-            <h1
-              className="dash-title"
-              style={{
-                fontSize: 28,
-                fontWeight: 800,
-                color: '#0b1f14',
-                lineHeight: 1.1,
-                margin: 0,
-                fontFamily: 'Montserrat, sans-serif',
-              }}
-            >
-              {title}
-            </h1>
-            <div
-              style={{
-                fontSize: 11,
-                letterSpacing: 2,
-                color: '#66736d',
-                marginTop: 6,
-              }}
-            >
-              CIVORA FARMS · INVESTOR PORTAL
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-            <Link href="/dashboard/notifications" style={{ textDecoration: 'none' }}>
-              <div style={{ width: 40, height: 40, borderRadius: 10, background: '#fff', border: '1px solid #e4e9e6', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#0b1f14' }} />
-              </div>
-            </Link>
-
-            <Link
-              href="/invest"
-              style={{
-                fontSize: 13,
-                fontWeight: 800,
-                letterSpacing: 2,
-                color: '#fff',
-                background: '#0f2f1d',
-                padding: '10px 18px',
-                borderRadius: 8,
-                textDecoration: 'none',
-              }}
-            >
-              + INVEST MORE
-            </Link>
-          </div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          {children}
-        </motion.div>
-      </main>
-
-      <SupportButton />
-    </div>
+        @media (max-width: 900px) {
+          .dl-shell {
+            flex-direction: column;
+          }
+          .dl-side {
+            width: 100%;
+            height: auto;
+            position: relative;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+          }
+          .dl-brand {
+            width: 100%;
+            border-bottom: none;
+          }
+          .dl-nav {
+            flex-direction: row;
+            flex-wrap: wrap;
+            padding: 6px 12px 14px;
+          }
+          .dl-nav-item {
+            border-left: none;
+            border-bottom: 2px solid transparent;
+            padding: 8px 10px;
+          }
+          .dl-nav-item-active {
+            border-bottom-color: var(--gold);
+          }
+          .dl-signout {
+            margin: 0 12px 14px auto;
+          }
+          .dl-main {
+            padding: 24px 20px;
+          }
+        }
+      `}</style>
+    </>
   );
 }
