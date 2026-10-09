@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/layout/DashboardLayout';
+import CommunityLinks from '../../components/community/CommunityLinks';
 
 const INITIAL_POSTS = [
   { id: 1, name: 'TUNDE A.', bg: 'var(--navy)', text: 'Just completed the CC Overview lesson. The section on the vision of COLIG really stirred something in my spirit. I feel like God placed me here intentionally for this season. Who else feels this way?', time: '2 hours ago · CC Orientation', likes: 12 },
@@ -32,6 +33,7 @@ export default function CommunityPage() {
 
   return (
     <DashboardLayout title="Community">
+        <CommunityLinks />
       {/* Header */}
       <div className="com-h">
         <div style={{ fontFamily: "'Barlow Condensed'", fontSize: 9, letterSpacing: 4, color: 'rgba(201,146,26,0.68)', marginBottom: 8 }}>STUDENT COMMUNITY</div>

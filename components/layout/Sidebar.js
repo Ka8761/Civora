@@ -58,7 +58,7 @@ export default function Sidebar() {
           style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer' }}
           onClick={() => signOut({ callbackUrl: '/' })}
         >
-          <span className="ni-i">🚪</span>
+ 
           <span className="ni-l">SIGN OUT</span>
         </button>
       </div>

@@ -14,6 +14,7 @@ const SermonSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
+        number: { type: Number, index: true },   // overall position 1..61
 
     speaker: {
       type: String,

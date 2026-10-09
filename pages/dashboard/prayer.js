@@ -1,90 +1,133 @@
 import { useEffect, useState } from 'react';
-import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 
+const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth'];
+
 export default function PrayerPage() {
-  const [prayers,  setPrayers]  = useState([]);
-  const [form,     setForm]     = useState({ title: '', text: '' });
-  const [loading,  setLoading]  = useState(false);
+  const [completed, setCompleted] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [confirming, setConfirming] = useState(null); // charge number being confirmed
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetch('/api/prayer').then(r => r.json()).then(d => setPrayers(d.prayers || []));
+    fetch('/api/user/progress')
+      .then((r) => r.json())
+      .then((d) => setCompleted(d.user?.prayerChargesCompleted || 0))
+      .catch(() => toast.error('Could not load your prayer progress'))
+      .finally(() => setLoading(false));
   }, []);
 
-  async function addPrayer(e) {
-    e.preventDefault();
-    if (!form.title || !form.text) { toast.error('Fill in both fields'); return; }
-    setLoading(true);
-    const res  = await fetch('/api/prayer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
-    const data = await res.json();
-    setPrayers(p => [data.prayer, ...p]);
-    setForm({ title: '', text: '' });
-    setLoading(false);
-    toast.success('🙏 Prayer logged!');
-  }
-
-  async function markAnswered(id) {
-    await fetch('/api/prayer', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
-    setPrayers(p => p.map(x => x._id === id ? { ...x, answered: true } : x));
-    toast.success('🙌 Praise God — marked as answered!');
+  async function confirmCharge() {
+    setSaving(true);
+    try {
+      const res = await fetch('/api/user/progress', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prayerCharge: confirming }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not save');
+      setCompleted(data.user.prayerChargesCompleted);
+      toast.success(
+        confirming === 6
+          ? 'All six prayer charges completed. God be praised!'
+          : `Prayer charge ${confirming} complete. Charge ${confirming + 1} is now open.`
+      );
+      setConfirming(null);
+    } catch (e) {
+      toast.error(e.message);
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
-    <DashboardLayout title="Prayer Log">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
+    <DashboardLayout title="Prayer Charges">
+      <div className="head">
         <div>
-          <div className="pg-t">Prayer Log</div>
-          <div className="pg-s">COLIG FOUNDATION · STUDENT PORTAL</div>
+          <div className="pg-s">SIX CHARGES · 10 HOURS EACH · 60 HOURS TOTAL</div>
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <div className="sc" style={{ padding: '13px 18px', minWidth: 90, textAlign: 'center' }}>
-            <div className="sc-l">REQUESTS</div>
-            <div className="sc-v" style={{ fontSize: 22, color: 'var(--pl)' }}>{prayers.length}</div>
-          </div>
-          <div className="sc" style={{ padding: '13px 18px', minWidth: 90, textAlign: 'center' }}>
-            <div className="sc-l">ANSWERED</div>
-            <div className="sc-v" style={{ fontSize: 22, color: 'var(--gb)' }}>{prayers.filter(p => p.answered).length}</div>
-          </div>
+        <div className="count">
+          <strong>{completed}</strong>/6 <span>COMPLETED</span>
         </div>
       </div>
 
-      {/* Form */}
-      <div className="prform">
-        <div style={{ fontFamily: "'Playfair Display'", fontSize: 17, fontWeight: 700, color: 'var(--navy)', marginBottom: 13 }}>Add New Prayer Request 🙏</div>
-        <form onSubmit={addPrayer}>
-          <label className="sc-l" style={{ display: 'block', marginBottom: 6 }}>PRAYER TITLE</label>
-          <input className="fi" type="text" required placeholder="e.g. Healing for my father"
-            style={{ background: '#fafaf8', borderColor: '#e0e0e0', color: 'var(--txt)', marginBottom: 11 }}
-            value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} />
-          <label className="sc-l" style={{ display: 'block', marginBottom: 6 }}>YOUR PRAYER</label>
-          <textarea className="rta" required placeholder="Write your prayer request here…" style={{ marginBottom: 12 }}
-            value={form.text} onChange={e => setForm(p => ({ ...p, text: e.target.value }))} />
-          <button type="submit" className="bs bs-g" disabled={loading}>
-            {loading ? 'SAVING…' : 'LOG PRAYER →'}
-          </button>
-        </form>
-      </div>
+      {loading ? (
+        <div className="empty">Loading…</div>
+      ) : (
+        <div className="grid">
+          {ORDINALS.map((name, i) => {
+            const n = i + 1;
+            const done = n <= completed;
+            const open = n === completed + 1;
+            const locked = n > completed + 1;
+            return (
+              <div key={n} className={`card ${done ? 'done' : ''} ${open ? 'open' : ''} ${locked ? 'locked' : ''}`}>
+                <div className="num">{n}</div>
+                <div className="title">Prayer Charge {n}</div>
+                <div className="sub">10 hours of prayer</div>
 
-      {/* List */}
-      {prayers.map(p => (
-        <div key={p._id} className="prit">
-          <div className="pi-i">🙏</div>
-          <div style={{ flex: 1 }}>
-            <div className="pi-t">{p.title}</div>
-            <div className="pi-tx">{p.text}</div>
-            <div className="pi-dt">{format(new Date(p.createdAt), 'd MMM yyyy')}</div>
-            {p.answered ? (
-              <div className="pi-ans">✓ ANSWERED</div>
-            ) : (
-              <button className="bs" style={{ marginTop: 8, padding: '5px 12px', fontSize: 10, background: 'rgba(76,175,80,0.1)', border: '1px solid rgba(76,175,80,0.3)', color: 'var(--gb)', cursor: 'pointer', borderRadius: 20, letterSpacing: 1, fontFamily: "'Barlow Condensed'", fontWeight: 700 }}
-                onClick={() => markAnswered(p._id)}>
-                MARK ANSWERED 🙌
+                {done && <div className="state">COMPLETED</div>}
+                {locked && <div className="state lockedtxt">🔒 LOCKED</div>}
+                {open && (
+                  <button className="btn" onClick={() => setConfirming(n)}>
+                    I HAVE FINISHED {name.toUpperCase()} PRAYER CHARGE
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {confirming && (
+        <div className="overlay" onClick={() => !saving && setConfirming(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Are you sure you have charged for the {ORDINALS[confirming - 1]} 10 hours?</h3>
+            <p className="small">
+              Don't lie — it's an app, but in reality it's between God and you.
+            </p>
+            <div className="actions">
+              <button className="btn" disabled={saving} onClick={confirmCharge}>
+                {saving ? 'SAVING…' : 'YES, I HAVE'}
               </button>
-            )}
+              <button className="btn ghost" disabled={saving} onClick={() => setConfirming(null)}>
+                NO, I HAVE NOT
+              </button>
+            </div>
           </div>
         </div>
-      ))}
+      )}
+
+      <style jsx>{`
+        .head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+        .count { font-size: 14px; color: var(--mid); }
+        .count strong { font-size: 28px; color: var(--gold); }
+        .count span { font-size: 9px; letter-spacing: 2px; margin-left: 4px; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .card { background: #fff; border: 1px solid #e7e7e7; border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 6px; }
+        .card.open { border-color: var(--gold); box-shadow: 0 8px 30px rgba(201,146,26,0.12); }
+        .card.done { background: #faf8ef; }
+        .card.locked { opacity: 0.5; }
+        .num { width: 42px; height: 42px; border-radius: 50%; background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; margin-bottom: 8px; }
+        .done .num { background: var(--gold); color: var(--navy); }
+        .title { font-size: 16px; font-weight: 700; color: var(--navy); }
+        .sub { font-size: 12px; color: #888; margin-bottom: 12px; }
+        .state { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: #39884a; }
+        .lockedtxt { color: #999; }
+        .btn { border: 0; background: var(--navy); color: #fff; padding: 12px 14px; border-radius: 7px; font-size: 10px; font-weight: 700; letter-spacing: 0.8px; cursor: pointer; }
+        .btn:disabled { opacity: 0.6; }
+        .btn.ghost { background: transparent; color: var(--mid); border: 1px solid #d8d8d8; }
+        .empty { padding: 50px; text-align: center; color: #888; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .modal { background: #fff; border-radius: 14px; max-width: 440px; width: 100%; padding: 30px; text-align: center; }
+        .modal h3 { font-size: 17px; color: var(--navy); line-height: 1.5; margin-bottom: 8px; }
+        .small { font-size: 10px; color: #999; font-style: italic; margin-bottom: 22px; }
+        .actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+      `}</style>
     </DashboardLayout>
   );
 }

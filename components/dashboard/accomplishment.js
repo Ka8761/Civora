@@ -49,6 +49,7 @@ export default function AccomplishmentPage() {
   return (
     <DashboardLayout title="Accomplishments">
       <div style={{ marginBottom: 16 }}>
+        <div className="pg-t">Accomplishments</div>
         <div className="pg-s">COLIG FOUNDATION · STUDENT ACHIEVEMENTS</div>
       </div>
 

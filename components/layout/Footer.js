@@ -10,7 +10,7 @@ export default function Footer() {
           </div>
 
           <div className="fd">
-            Leadership Foundation School — equipping believers with
+            Leadership Foundation School. Equipping believers with
             sound doctrine, spiritual discipline, and servant leadership
             for the 21st century.
           </div>
@@ -44,15 +44,15 @@ export default function Footer() {
           </div>
 
           <div className="flink">
-            📧 info@coligfoundation.org
+            info@coligfoundation.org
           </div>
 
           <div className="flink">
-            📞 +234 000 000 0000
+            +234 000 000 0000
           </div>
 
           <div className="flink">
-            📍 Nigeria
+            Kaduna, Nigeria
           </div>
         </div>
 

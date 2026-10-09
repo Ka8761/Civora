@@ -3,288 +3,136 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 
-const MODULES = [
-  { l: 'CC Orientation', p: 12, lk: false },
-  { l: 'C2 New Birth', p: 0, lk: true },
-  { l: 'C3 Spiritual Milk', p: 0, lk: true },
-  { l: 'C4 Growing in Love', p: 0, lk: true },
-  { l: 'C5 Stewardship', p: 0, lk: true },
-  { l: 'C6 COLIG Cultures', p: 0, lk: true },
-];
-
 export default function DashboardHome() {
   const { data: session } = useSession();
   const [user, setUser] = useState(null);
+  const [curriculum, setCurriculum] = useState([]);
+  const [currentModule, setCurrentModule] = useState('cc');
+  const [grade, setGrade] = useState({ overallGrade: '—', avgScore: 0 });
 
   useEffect(() => {
     let mounted = true;
-
-    fetch('/api/user/progress')
-      .then((response) => response.json())
-      .then((data) => {
-        if (mounted) {
-          setUser(data.user || null);
-        }
+    Promise.all([
+      fetch('/api/user/progress').then((r) => r.json()),
+      fetch('/api/curriculum').then((r) => r.json()),
+      fetch('/api/grades').then((r) => r.json()),
+    ])
+      .then(([p, c, g]) => {
+        if (!mounted) return;
+        setUser(p.user || null);
+        setCurriculum(c.curriculum || []);
+        setCurrentModule(c.currentModule || 'cc');
+        if (g.summary) setGrade(g.summary);
       })
-      .catch(() => {
-        if (mounted) {
-          setUser(null);
-        }
-      });
-
-    return () => {
-      mounted = false;
-    };
+      .catch(() => {});
+    return () => { mounted = false; };
   }, []);
 
-  const firstName =
-    session?.user?.name?.split(' ')[0] || 'Student';
+  const firstName = session?.user?.name?.split(' ')[0] || 'Student';
+  const sermonsDone = user?.sermonsCompleted || 0;
+  const lessonsDone = user?.completedModules?.length || 0;
+  const prayerHours = user?.prayerHoursLogged || 0;
+  const overallProgress = user?.overallProgress ?? 0;
 
-  const sermonsDone =
-    user?.completedSermons?.length ||
-    user?.completedLessons?.length ||
-    0;
-
-  const lessonsDone =
-    user?.completedLessons?.length || 0;
-
-  const prayerHours =
-    user?.prayerHoursLogged || 0;
-
-  const overallProgress =
-    user?.overallProgress ?? 12;
+  const MODULES = curriculum
+    .filter((c) => c.type !== 'final-assessment')
+    .map((c) => ({ l: c.title, p: c.completed ? 100 : 0, lk: c.status === 'LOCKED' }));
+  const current = curriculum.find((c) => c.key === currentModule);
 
   return (
     <DashboardLayout title="Dashboard">
       <div className="dashboard-home">
-
-        {/* Welcome Banner */}
         <section className="wb">
           <div className="wb-g" />
-
           <div className="wb-content">
-            <div className="wb-eyebrow">
-              WELCOME BACK
-            </div>
-
-            <h1 className="wb-title">
-              Good to see you, {firstName}
-            </h1>
-
+            <div className="wb-eyebrow">WELCOME BACK</div>
+            <h1 className="wb-title">Good to see you, {firstName}</h1>
             <p className="wb-subtitle">
-              You're on your discipleship journey. Keep pressing
-              forward — every lesson brings you closer to your
-              certificate.
+              You're on your discipleship journey. Keep pressing forward — every lesson brings you
+              closer to your certificate.
             </p>
-
             <Link href="/dashboard/curriculum">
-              <button className="bs bs-g">
-                CONTINUE LEARNING →
-              </button>
+              <button className="bs bs-g">CONTINUE LEARNING →</button>
             </Link>
           </div>
-
           <div className="wb-b">
-            <div className="wb-bv">
-              {overallProgress}%
-            </div>
-
-            <div className="wb-bl">
-              COMPLETED
-            </div>
+            <div className="wb-bv">{overallProgress}%</div>
+            <div className="wb-bl">COMPLETED</div>
           </div>
         </section>
 
-        {/* Statistics */}
         <section className="g4">
-
           <div className="sc">
-            <div className="sc-l">
-              CURRENT MODULE
-            </div>
-
-            <div className="sc-v module-name">
-              CC Orientation
-            </div>
-
-            <div className="sc-s">
-              Overview in progress
-            </div>
+            <div className="sc-l">CURRENT MODULE</div>
+            <div className="sc-v module-name">{current?.title || 'CC Orientation'}</div>
+            <div className="sc-s">{current?.status === 'COMPLETE' ? 'Completed' : 'In progress'}</div>
           </div>
-
           <div className="sc">
-            <div className="sc-l">
-              SERMONS HEARD
-            </div>
-
-            <div className="sc-v gold">
-              {sermonsDone}
-              <span>/61</span>
-            </div>
-
-            <div className="sc-s">
-              Complete all to unlock exam
-            </div>
+            <div className="sc-l">SERMONS HEARD</div>
+            <div className="sc-v gold">{sermonsDone}<span>/61</span></div>
+            <div className="sc-s">Complete all to unlock exam</div>
           </div>
-
           <div className="sc">
-            <div className="sc-l">
-              PRAYER HOURS
-            </div>
-
-            <div className="sc-v purple">
-              {prayerHours}
-            </div>
-
-            <div className="sc-s">
-              of 12 required hours
-            </div>
+            <div className="sc-l">PRAYER HOURS</div>
+            <div className="sc-v purple">{prayerHours}</div>
+            <div className="sc-s">of 60 required hours</div>
           </div>
-
           <div className="sc">
-            <div className="sc-l">
-              CURRENT GRADE
-            </div>
-
-            <div className="sc-v green">
-              A
-            </div>
-
-            <div className="sc-s">
-              Knowledge check: 95%
-            </div>
+            <div className="sc-l">CURRENT GRADE</div>
+            <div className="sc-v green">{grade.overallGrade}</div>
+            <div className="sc-s">{grade.avgScore ? `Knowledge check: ${grade.avgScore}%` : 'No scores yet'}</div>
           </div>
-
         </section>
 
-        {/* Progress + Quick Actions */}
         <section className="g32">
-
-          {/* Module Progress */}
           <div className="wc">
             <div className="wch">
-              <div className="wct">
-                Module Progress
-              </div>
-
-              <span className="tag">
-                CC ORIENTATION
-              </span>
+              <div className="wct">Module Progress</div>
+              <span className="tag">{(current?.title || 'CC ORIENTATION').toUpperCase()}</span>
             </div>
-
             <div className="wcb">
-
               {MODULES.map((module, index) => (
-                <div
-                  key={index}
-                  className="module-row"
-                >
+                <div key={index} className="module-row">
                   <div className="module-top">
-                    <span
-                      className={
-                        module.lk
-                          ? 'module-label locked'
-                          : 'module-label'
-                      }
-                    >
+                    <span className={module.lk ? 'module-label locked' : 'module-label'}>
                       {module.l}
+                      {module.lk && <span className="lock">🔒</span>}
                     </span>
-
-                    <span
-                      className={
-                        module.p > 0
-                          ? 'module-percent active'
-                          : 'module-percent'
-                      }
-                    >
+                    <span className={module.p > 0 ? 'module-percent active' : 'module-percent'}>
                       {module.p}%
                     </span>
                   </div>
-
-                  <div className="pw">
-                    <div
-                      className="pf"
-                      style={{
-                        width: `${module.p}%`,
-                      }}
-                    />
-                  </div>
+                  <div className="pw"><div className="pf" style={{ width: `${module.p}%` }} /></div>
                 </div>
               ))}
-
             </div>
           </div>
 
-          {/* Quick Actions */}
           <div className="wc">
-
-            <div className="wch">
-              <div className="wct">
-                Quick Actions
-              </div>
-            </div>
-
+            <div className="wch"><div className="wct">Quick Actions</div></div>
             <div className="quick-actions">
-
-              <QuickAction
-                label="Continue Lesson"
-                sub="CC Overview"
-                href="/dashboard/curriculum"
-              />
-
-              <QuickAction
-                label="Sermon Project"
-                sub={`${sermonsDone}/61 complete`}
-                href="/dashboard/sermon-project"
-              />
-
-              <QuickAction
-                label="Log a Prayer"
-                sub="Add new request"
-                href="/dashboard/prayer-log"
-              />
-
-              <QuickAction
-                label="Write Testimony"
-                sub="Journal entry"
-                href="/dashboard/testimony-diary"
-              />
-
+              <QuickAction label="Continue Lesson" sub={current?.title || 'CC Orientation'} href="/dashboard/curriculum" />
+              <QuickAction label="Sermon Project" sub={`${sermonsDone}/61 complete`} href="/dashboard/sermon-project" />
+              <QuickAction label="Prayer Charges" sub={`${user?.prayerChargesCompleted || 0}/6 complete`} href="/dashboard/prayer" />
+              <QuickAction label="Write Testimony" sub="Journal entry" href="/dashboard/testimony-diary" />
             </div>
-
           </div>
-
         </section>
 
-        {/* Additional Progress */}
         <section className="bottom-card">
-
           <div>
-            <div className="bottom-eyebrow">
-              YOUR FOUNDATION
-            </div>
-
-            <h2>
-              Keep building your foundation.
-            </h2>
-
+            <div className="bottom-eyebrow">YOUR FOUNDATION</div>
+            <h2>Keep building your foundation.</h2>
             <p>
-              You have completed {lessonsDone} lessons so far.
-              Continue through the curriculum and complete each
-              requirement to progress toward your certificate.
+              You have completed {lessonsDone} {lessonsDone === 1 ? 'session' : 'sessions'} so far.
+              Continue through the curriculum and complete each requirement to progress toward your certificate.
             </p>
           </div>
-
           <Link href="/dashboard/curriculum">
-            <button className="outline-button">
-              VIEW CURRICULUM
-            </button>
+            <button className="outline-button">VIEW CURRICULUM</button>
           </Link>
-
         </section>
-
       </div>
-
       <style jsx>{`
         .dashboard-home {
           width: 100%;
@@ -540,7 +388,7 @@ export default function DashboardHome() {
           padding: 8px 10px;
         }
 
-        .quick-action {
+       .dashboard-home :global(.quick-action) { 
           display: flex;
           align-items: center;
           gap: 11px;
@@ -550,21 +398,15 @@ export default function DashboardHome() {
           transition: background 0.15s ease;
         }
 
-        .quick-action:last-child {
-          border-bottom: none;
-        }
-
-        .quick-action:hover {
-          background: #faf9f4;
-        }
-
-        .qa-label {
+        .dashboard-home :global(.quick-action:last-child) { border-bottom: none; }
+        .dashboard-home :global(.quick-action:hover) { background: #faf9f4; }
+       .dashboard-home :global(.qa-label) {
           color: #0a1628;
           font-size: 11px;
           font-weight: 700;
         }
 
-        .qa-sub {
+        .dashboard-home :global(.qa-sub) {
           margin-top: 3px;
           color: #999;
           font-size: 9px;

@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]';
-import dbConnect from '../../../lib/dbConnect';
+import connectDB from '../../../lib/mongodb';
 import Course from '../../../models/Course';
 import Progress from '../../../models/Progress';
 import { COURSES, isUnlocked, computeStatus } from '../../../lib/curriculumData';
@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions);
   if (!session) return res.status(401).json({ error: 'Not authenticated' });
 
-  await dbConnect();
+  await connectDB();
 
   if (req.method === 'GET') {
     try {
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
           type: c.type,
           title: dbCourse?.title || c.title,
           subtitle: dbCourse?.subtitle || '',
-          description: dbCourse?.description || '',
+          description: dbCourse?.description || c.description || '',
           lessonsCount: dbCourse?.lessonsCount || 0,
           passingScore: dbCourse?.passingScore ?? 70,
           unlocked: isUnlocked(c.key, completedModules),

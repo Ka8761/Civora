@@ -27,6 +27,8 @@ completedLessons: {
     sermonsCompleted: { type: Number, default: 0 },
     overallProgress: { type: Number, default: 0 },
     certificateIssued: { type: Boolean, default: false },
+    lastActiveAt: { type: Date },
+    lastReminderAt: { type: Date },
   },
   { timestamps: true }
 );

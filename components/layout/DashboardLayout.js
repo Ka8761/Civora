@@ -7,9 +7,9 @@ const NAV_ITEMS = [
   { label: 'HOME',            href: '/dashboard' },
   { label: 'PROFILE',         href: '/dashboard/profile' },
   { label: 'CURRICULUM MAP',  href: '/dashboard/curriculum' },
-  { label: 'SERMON PROJECT',  href: '/dashboard/sermon' },
   { label: 'PRAYER LOG',      href: '/dashboard/prayer' },
-  { label: 'TESTIMONY DIARY', href: '/dashboard/testimony' },
+   { label: 'SERMON PROJECT',  href: '/dashboard/sermon-project' },
+  { label: 'TESTIMONY DIARY', href: '/dashboard/testimony-diary' },
   { label: 'GRADES',          href: '/dashboard/grades' },
   { label: 'ACCOMPLISHMENT',  href: '/dashboard/accomplishment' },
   { label: 'JOIN COMMUNITY',  href: '/dashboard/community' },
@@ -37,8 +37,10 @@ export default function DashboardLayout({ title, children }) {
 
       <div className="dl-shell">
         <aside className="dl-side">
-          <div className="dl-brand">
-            <div className="dl-brand-name">COLIG</div>
+          <div className="dl-brand" >
+            <div className="dl-brand-name" cursor="pointer">
+              COLIG
+            </div>
             <div className="dl-brand-sub">Leadership Foundation School</div>
           </div>
 
