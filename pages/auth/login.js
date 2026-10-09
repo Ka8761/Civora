@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -28,7 +29,13 @@ export default function LoginPage() {
 
   return (
     <>
-      <Head><title>Login — COLIG Leadership Foundation School</title></Head>
+      <Head>
+        <title>Login — COLIG Leadership Foundation School</title>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet"
+        />
+      </Head>
       <div className="auth-wrap">
         <div className="auth-glow" />
         <div className="auth-card">
@@ -59,7 +66,7 @@ export default function LoginPage() {
               value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))} />
 
             <div style={{ textAlign: 'right', marginBottom: 18, marginTop: -6 }}>
-              <Link href="/auth/forgot-password" style={{ fontFamily: "'Barlow Condensed'", fontSize: 11, letterSpacing: 2, color: 'var(--gold)', textDecoration: 'none' }}>
+              <Link href="/auth/forgot-password" style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 11, letterSpacing: 2, color: 'var(--gold)', textDecoration: 'none' }}>
                 FORGOT PASSWORD?
               </Link>
             </div>
@@ -77,6 +84,11 @@ export default function LoginPage() {
       </div>
 
       <style jsx>{`
+        .auth-wrap,
+        .auth-wrap * {
+          font-family: 'Montserrat', sans-serif;
+        }
+
         .gbtn {
           width: 100%;
           display: flex;
@@ -86,7 +98,7 @@ export default function LoginPage() {
           padding: 13px;
           background: #fff;
           color: #1a1a2e;
-          font-family: 'Barlow Condensed', sans-serif;
+          font-family: 'Montserrat', sans-serif;
           font-size: 13px;
           font-weight: 800;
           letter-spacing: 1.5px;
@@ -113,7 +125,7 @@ export default function LoginPage() {
           background: rgba(255, 255, 255, 0.1);
         }
         .auth-divider span {
-          font-family: 'Barlow Condensed', sans-serif;
+          font-family: 'Montserrat', sans-serif;
           font-size: 10px;
           letter-spacing: 2px;
           color: rgba(255, 255, 255, 0.35);

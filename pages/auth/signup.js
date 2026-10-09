@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { signIn } from 'next-auth/react';
@@ -42,7 +43,14 @@ export default function SignupPage() {
 
   return (
     <>
-      <Head><title>Enrol — COLIG Leadership Foundation School</title></Head>
+      <Head>
+        <title>Enrol — COLIG Leadership Foundation School</title>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet"
+        />
+      </Head>
+
       <div className="auth-wrap">
         <div className="auth-glow" />
         <div className="auth-card" style={{ maxWidth: 480 }}>
@@ -70,6 +78,7 @@ export default function SignupPage() {
                 <input className="fi" type="text" required placeholder="Your full name"
                   value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
               </div>
+
               <div>
                 <label className="flbl">Phone *</label>
                 <input className="fi" type="tel" required placeholder="+234 000 000 0000"
@@ -94,6 +103,7 @@ export default function SignupPage() {
                 <input className="fi" type="password" required placeholder="8+ characters"
                   value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))} />
               </div>
+
               <div>
                 <label className="flbl">Confirm Password *</label>
                 <input className="fi" type="password" required placeholder="Repeat password"
@@ -113,6 +123,11 @@ export default function SignupPage() {
       </div>
 
       <style jsx>{`
+        .auth-wrap,
+        .auth-wrap * {
+          font-family: 'Montserrat', sans-serif;
+        }
+
         .gbtn {
           width: 100%;
           display: flex;
@@ -122,7 +137,7 @@ export default function SignupPage() {
           padding: 13px;
           background: #fff;
           color: #1a1a2e;
-          font-family: 'Barlow Condensed', sans-serif;
+          font-family: 'Montserrat', sans-serif;
           font-size: 13px;
           font-weight: 800;
           letter-spacing: 1.5px;
@@ -131,16 +146,19 @@ export default function SignupPage() {
           cursor: pointer;
           margin-top: 18px;
         }
+
         .gbtn:disabled {
           opacity: 0.7;
           cursor: default;
         }
+
         .auth-divider {
           display: flex;
           align-items: center;
           gap: 10px;
           margin: 18px 0;
         }
+
         .auth-divider::before,
         .auth-divider::after {
           content: '';
@@ -148,8 +166,9 @@ export default function SignupPage() {
           height: 1px;
           background: rgba(255, 255, 255, 0.1);
         }
+
         .auth-divider span {
-          font-family: 'Barlow Condensed', sans-serif;
+          font-family: 'Montserrat', sans-serif;
           font-size: 10px;
           letter-spacing: 2px;
           color: rgba(255, 255, 255, 0.35);

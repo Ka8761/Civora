@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
@@ -23,42 +24,98 @@ export default function ForgotPasswordPage() {
 
   return (
     <>
-      <Head><title>Forgot Password — COLIG LFS</title></Head>
+      <Head>
+        <title>Forgot Password | COLIG LFS</title>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet"
+        />
+      </Head>
+
       <div className="auth-wrap">
         <div className="auth-glow" />
+
         <div className="auth-card">
           <div className="auth-logo">COLIG FOUNDATION</div>
-          <div style={{ fontSize: 40, textAlign: 'center', margin: '16px 0' }}>🔑</div>
 
           {!sent ? (
             <>
-              <div className="auth-h" style={{ textAlign: 'center' }}>Forgot Password?</div>
-              <div className="auth-p" style={{ textAlign: 'center' }}>Enter your email — we'll send a reset link</div>
+              <div
+                className="auth-h"
+                style={{ textAlign: 'center' }}
+              >
+                Forgot Password?
+              </div>
+
+              <div
+                className="auth-p"
+                style={{ textAlign: 'center' }}
+              >
+                Enter your email. We will send a reset link
+              </div>
+
               <form onSubmit={handleSubmit}>
                 <label className="flbl">Email Address</label>
-                <input className="fi" type="email" required placeholder="your@email.com"
-                  value={email} onChange={e => setEmail(e.target.value)} />
-                <button type="submit" className="bprim" disabled={loading}>
-                  {loading ? 'SENDING…' : 'SEND RESET LINK →'}
+
+                <input
+                  className="fi"
+                  type="email"
+                  required
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                />
+
+                <button
+                  type="submit"
+                  className="bprim"
+                  disabled={loading}
+                >
+                  {loading ? 'SENDING…' : 'SEND RESET LINK'}
                 </button>
               </form>
             </>
           ) : (
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 48, marginBottom: 16 }}>📧</div>
-              <div style={{ fontFamily: "'Playfair Display'", fontSize: 20, fontWeight: 700, color: '#fff', marginBottom: 10 }}>Check Your Email</div>
-              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7 }}>
-                We sent a reset link to <strong style={{ color: 'var(--gold)' }}>{email}</strong>. It expires in 1 hour.
+              <div
+                style={{
+                  fontSize: 20,
+                  fontWeight: 700,
+                  color: '#fff',
+                  marginBottom: 10,
+                }}
+              >
+                Check Your Email
+              </div>
+
+              <p
+                style={{
+                  fontSize: 13,
+                  color: 'rgba(255,255,255,0.5)',
+                  lineHeight: 1.7,
+                }}
+              >
+                We sent a reset link to{' '}
+                <strong style={{ color: 'var(--gold)' }}>
+                  {email}
+                </strong>
+                . It expires in 1 hour.
               </p>
             </div>
           )}
 
           <div className="msw" style={{ marginTop: 20 }}>
-            <Link href="/auth/login">← BACK TO LOGIN</Link>
+            <Link href="/auth/login">BACK TO LOGIN</Link>
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .auth-wrap,
+        .auth-wrap * {
+          font-family: 'Montserrat', sans-serif;
+        }
+      `}</style>
     </>
   );
 }
-
